@@ -1,0 +1,75 @@
+# =====================================================================
+# DigitalOcean App Platform Specification
+# https://docs.digitalocean.com/products/app-platform/reference/app-spec/
+# =====================================================================
+
+name: controlbox
+
+# Region - choose closest to your users
+region: nyc
+
+# Environment variables shared across services
+envs:
+  - key: NODE_ENV
+    value: production
+
+services:
+  # Backend API Server
+  - name: api
+    github:
+      repo: SingSongScreamAlong/ControlBox
+      branch: main
+      deploy_on_push: true
+    dockerfile_path: Dockerfile
+    build_command: ""
+    run_command: ""
+    # Use the 'server' target from multi-stage build
+    # Note: DO App Platform builds the last stage by default
+    http_port: 8080
+    instance_count: 1
+    instance_size_slug: basic-xxs  # $5/mo - upgrade as needed
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 10
+      period_seconds: 30
+    envs:
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+      - key: CORS_ORIGINS
+        scope: RUN_TIME
+        value: ${APP_URL}
+      - key: OPENAI_API_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: DISCORD_BOT_TOKEN
+        scope: RUN_TIME
+        type: SECRET
+
+  # Frontend Dashboard (static site)
+  - name: dashboard
+    github:
+      repo: SingSongScreamAlong/ControlBox
+      branch: main
+      deploy_on_push: true
+    build_command: npm install && npm run build
+    environment_slug: node-js
+    source_dir: packages/dashboard
+    output_dir: dist
+    index_document: index.html
+    error_document: index.html  # SPA fallback
+    envs:
+      - key: VITE_API_URL
+        scope: BUILD_TIME
+        value: ${api.PUBLIC_URL}
+
+# Managed Database (optional - can use external)
+databases:
+  - name: controlbox-db
+    engine: PG
+    version: "15"
+    size: db-s-dev-database  # $7/mo - smallest
+    num_nodes: 1

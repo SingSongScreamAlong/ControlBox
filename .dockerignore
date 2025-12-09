@@ -1,0 +1,38 @@
+# Dependencies
+node_modules
+**/node_modules
+
+# Build artifacts (will be created in container)
+**/dist
+**/.tsbuildinfo
+
+# Development files
+.git
+.github
+.vscode
+.idea
+*.md
+!README.md
+
+# Test files
+**/__tests__
+**/*.test.ts
+**/*.spec.ts
+coverage
+
+# Environment files (use DO secrets instead)
+.env
+.env.local
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs
+
+# Misc
+.dockerignore
+docker-compose.yml
