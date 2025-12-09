@@ -45,7 +45,9 @@ export type DiscordNotificationType =
     | 'report_published'
     | 'penalty_finalized'
     | 'season_ended'
-    | 'test_message';
+    | 'test_message'
+    | 'incident_detected'
+    | 'advisor_alert';
 
 export interface DiscordNotification {
     id: string;

@@ -274,6 +274,68 @@ export class DiscordService {
     }
 
     /**
+     * Send incident detected notification
+     */
+    async sendIncidentNotification(
+        event: Event,
+        incidentType: string,
+        involvedDrivers: string[],
+        lap: number,
+        severity: string
+    ): Promise<void> {
+        const { allowed, config } = await this.canNotify(event.leagueId, event.seasonId);
+        if (!allowed) return;
+
+        const channelId = config!.raceControlChannelId ?? config!.stewardChannelId;
+        if (!channelId) return;
+
+        const driversText = involvedDrivers.join(' vs ');
+        const severityEmoji = severity === 'high' ? '🔴' : severity === 'medium' ? '🟡' : '🟢';
+
+        const message = `${severityEmoji} **Incident detected** – Lap ${lap}\n` +
+            `Type: ${incidentType}\n` +
+            `Drivers: ${driversText}\n` +
+            `Stewards are reviewing this incident.`;
+
+        await this.sendMessage(
+            channelId,
+            message,
+            event.leagueId,
+            event.id,
+            'incident_detected'
+        );
+    }
+
+    /**
+     * Send advisor flag notification (when advisor flags potential issues)
+     */
+    async sendAdvisorAlert(
+        event: Event,
+        incidentId: string,
+        flagType: string,
+        message: string
+    ): Promise<void> {
+        const { allowed, config } = await this.canNotify(event.leagueId, event.seasonId);
+        if (!allowed) return;
+
+        const channelId = config!.stewardChannelId ?? config!.raceControlChannelId;
+        if (!channelId) return;
+
+        const alertMessage = `🤖 **Steward Advisor Alert**\n` +
+            `Incident: ${incidentId}\n` +
+            `Flag: ${flagType}\n` +
+            `${message}`;
+
+        await this.sendMessage(
+            channelId,
+            alertMessage,
+            event.leagueId,
+            event.id,
+            'advisor_alert'
+        );
+    }
+
+    /**
      * Send season ended notification (one-time when license expires)
      */
     async sendSeasonEnded(leagueId: string, _seasonId: string, seasonName: string): Promise<void> {
