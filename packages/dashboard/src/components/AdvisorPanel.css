@@ -1,0 +1,280 @@
+/* =====================================================================
+   Advisor Panel Styles
+   ===================================================================== */
+
+.advisor-panel {
+    background: var(--color-background-elevated, #1a1a2e);
+    border-radius: 12px;
+    border: 1px solid var(--color-border, #2a2a4a);
+    overflow: hidden;
+}
+
+.advisor-panel__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1));
+    border-bottom: 1px solid var(--color-border, #2a2a4a);
+}
+
+.advisor-panel__header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-text-primary, #fff);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.advisor-panel__warning-badge {
+    font-size: 14px;
+}
+
+.advisor-panel__close {
+    background: none;
+    border: none;
+    color: var(--color-text-secondary, #888);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.advisor-panel__close:hover {
+    color: var(--color-text-primary, #fff);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.advisor-panel__disclaimer {
+    padding: 12px 20px;
+    background: rgba(234, 179, 8, 0.1);
+    border-bottom: 1px solid var(--color-border, #2a2a4a);
+    font-size: 13px;
+    color: #eab308;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.advisor-panel__content {
+    padding: 16px;
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.advisor-panel__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    gap: 16px;
+    color: var(--color-text-secondary, #888);
+}
+
+.advisor-panel__spinner {
+    width: 32px;
+    height: 32px;
+    border: 3px solid rgba(59, 130, 246, 0.2);
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: advisor-spin 0.8s linear infinite;
+}
+
+@keyframes advisor-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.advisor-panel__error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 24px;
+    color: var(--color-error, #f87171);
+}
+
+.advisor-panel__error button {
+    background: rgba(248, 113, 113, 0.2);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    color: #f87171;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.advisor-panel__error button:hover {
+    background: rgba(248, 113, 113, 0.3);
+}
+
+.advisor-panel__empty {
+    text-align: center;
+    padding: 32px;
+    color: var(--color-text-secondary, #888);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.advisor-panel__empty button {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.advisor-panel__empty button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Advice Card */
+.advice-card {
+    background: var(--color-background, #0f0f1a);
+    border: 1px solid var(--color-border, #2a2a4a);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.advice-card:last-child {
+    margin-bottom: 0;
+}
+
+.advice-card__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.advice-card__summary {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text-primary, #fff);
+    line-height: 1.4;
+}
+
+.advice-card__confidence {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.advice-card__rules {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.advice-card__rules-label {
+    font-size: 12px;
+    color: var(--color-text-secondary, #888);
+}
+
+.advice-card__rule-tag {
+    background: rgba(139, 92, 246, 0.2);
+    color: #a78bfa;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: monospace;
+}
+
+.advice-card__reasoning {
+    font-size: 13px;
+    color: var(--color-text-secondary, #bbb);
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.advice-card__flags {
+    margin-bottom: 12px;
+}
+
+.advice-card__flag {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(234, 179, 8, 0.1);
+    border: 1px solid rgba(234, 179, 8, 0.2);
+    border-radius: 6px;
+    margin-bottom: 8px;
+}
+
+.advice-card__flag:last-child {
+    margin-bottom: 0;
+}
+
+.advice-card__flag-icon {
+    font-size: 14px;
+}
+
+.advice-card__flag-message {
+    font-size: 12px;
+    color: #eab308;
+    line-height: 1.4;
+}
+
+.advice-card__alternatives {
+    border-top: 1px solid var(--color-border, #2a2a4a);
+    padding-top: 12px;
+}
+
+.advice-card__alternatives-header {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-text-secondary, #888);
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.advice-card__alternative {
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+}
+
+.advice-card__alternative:last-child {
+    margin-bottom: 0;
+}
+
+.advice-card__alternative-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-primary, #fff);
+    margin-bottom: 4px;
+}
+
+.advice-card__alternative-desc {
+    font-size: 12px;
+    color: var(--color-text-secondary, #aaa);
+    margin-bottom: 4px;
+}
+
+.advice-card__alternative-consequence {
+    font-size: 11px;
+    color: var(--color-text-tertiary, #666);
+    font-style: italic;
+}

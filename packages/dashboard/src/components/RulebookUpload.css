@@ -1,0 +1,264 @@
+/* =====================================================================
+   RulebookUpload Component Styles
+   File upload and text extraction UI
+   ===================================================================== */
+
+.rulebook-upload {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.upload-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.upload-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.upload-header p {
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+/* File Input Section */
+.upload-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.file-input-container {
+    position: relative;
+}
+
+.file-input-container input[type="file"] {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    border: 2px dashed #475569;
+    border-radius: 12px;
+    color: #94a3b8;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.file-label:hover {
+    border-color: #6366f1;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(30, 41, 59, 0.9));
+    color: #e2e8f0;
+}
+
+.upload-icon {
+    font-size: 1.5rem;
+}
+
+/* Discipline Select */
+.discipline-select {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.discipline-select label {
+    font-size: 0.875rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+.discipline-select select {
+    padding: 0.75rem 1rem;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.discipline-select select:hover,
+.discipline-select select:focus {
+    border-color: #6366f1;
+    outline: none;
+}
+
+/* Text Preview */
+.text-preview,
+.paste-section {
+    margin-bottom: 1.5rem;
+}
+
+.text-preview h3,
+.paste-section h3 {
+    font-size: 0.95rem;
+    color: #cbd5e1;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+
+.text-preview textarea,
+.paste-section textarea {
+    width: 100%;
+    padding: 1rem;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    color: #e2e8f0;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    resize: vertical;
+    transition: border-color 0.2s;
+}
+
+.text-preview textarea:focus,
+.paste-section textarea:focus {
+    border-color: #6366f1;
+    outline: none;
+}
+
+.text-preview textarea:disabled,
+.paste-section textarea:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Error Message */
+.error-message {
+    padding: 1rem;
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #fca5a5;
+    font-size: 0.9rem;
+    margin-bottom: 1.5rem;
+}
+
+/* Upload Actions */
+.upload-actions {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.875rem 2rem;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    border: none;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Spinner */
+.spinner {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Tips Section */
+.upload-tips {
+    padding: 1.25rem;
+    background: rgba(99, 102, 241, 0.08);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 10px;
+}
+
+.upload-tips h4 {
+    font-size: 0.9rem;
+    color: #a5b4fc;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.upload-tips ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.upload-tips li {
+    position: relative;
+    padding-left: 1.25rem;
+    color: #94a3b8;
+    font-size: 0.875rem;
+    line-height: 1.75;
+}
+
+.upload-tips li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #6366f1;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+    .rulebook-upload {
+        padding: 1rem;
+    }
+
+    .upload-header h2 {
+        font-size: 1.5rem;
+    }
+
+    .file-label {
+        padding: 1.5rem 1rem;
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .btn-primary {
+        width: 100%;
+        justify-content: center;
+    }
+}

@@ -1,0 +1,21 @@
+{
+    "name": "@controlbox/relay",
+    "version": "0.1.0-alpha",
+    "description": "ControlBox Relay test client for simulating iRacing data",
+    "type": "module",
+    "main": "./dist/index.js",
+    "scripts": {
+        "build": "tsc",
+        "start": "tsx src/index.ts",
+        "dev": "tsx watch src/index.ts"
+    },
+    "dependencies": {
+        "@controlbox/common": "*",
+        "socket.io-client": "^4.7.2"
+    },
+    "devDependencies": {
+        "@types/node": "^20.10.5",
+        "tsx": "^4.7.0",
+        "typescript": "^5.3.3"
+    }
+}
