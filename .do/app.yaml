@@ -22,7 +22,7 @@ services:
       deploy_on_push: true
     # Use Node.js buildpack with explicit build commands
     environment_slug: node-js
-    build_command: npm ci && npm run build --workspaces --if-present
+    build_command: npm install && npm run build --workspaces --if-present
     run_command: node packages/server/dist/index.js
     http_port: 8080
     instance_count: 1
