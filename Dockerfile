@@ -16,6 +16,9 @@ COPY packages/dashboard/package*.json ./packages/dashboard/
 # Install dependencies
 RUN npm ci
 
+# Cache bust argument - change this value to force fresh source copy
+ARG CACHE_BUST=2024121001
+
 # Copy source code
 COPY tsconfig.base.json ./
 COPY packages/common ./packages/common
