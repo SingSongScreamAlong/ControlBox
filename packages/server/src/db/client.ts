@@ -2,13 +2,18 @@
 // Database Client
 // =====================================================================
 
-import { Pool } from 'pg';
+import { Pool, PoolConfig } from 'pg';
 import { config } from '../config/index.js';
 
-export const pool = new Pool({
+// Configure SSL for production (DigitalOcean managed databases use self-signed certs)
+const poolConfig: PoolConfig = {
     connectionString: config.databaseUrl,
     max: config.databasePoolSize,
-});
+    // In production, accept self-signed certificates from managed databases
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : undefined,
+};
+
+export const pool = new Pool(poolConfig);
 
 export async function initializeDatabase(): Promise<void> {
     // Test the connection
