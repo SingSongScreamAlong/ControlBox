@@ -8,7 +8,6 @@ import { useIncidentStore } from '../../stores/incident.store';
 import { useAdvisorStore } from '../../stores/advisor.store';
 import { AdvisorPanel } from '../AdvisorPanel';
 import { AdvisorChip } from '../AdvisorChip';
-import './RecommendationPanel.css';
 
 interface RecommendationPanelProps {
     sessionId?: string;
