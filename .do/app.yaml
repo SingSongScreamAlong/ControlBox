@@ -54,10 +54,10 @@ services:
       repo: SingSongScreamAlong/ControlBox
       branch: main
       deploy_on_push: true
-    build_command: npm install && npm run build
+    build_command: npm install && npm run build --workspaces
     environment_slug: node-js
-    source_dir: packages/dashboard
-    output_dir: dist
+    # Build from root to get all files, output from dashboard dist
+    output_dir: packages/dashboard/dist
     index_document: index.html
     error_document: index.html  # SPA fallback
     envs:
