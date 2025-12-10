@@ -1,6 +1,6 @@
 # =====================================================================
 # DigitalOcean App Platform Specification
-# https://docs.digitalocean.com/products/app-platform/reference/app-spec/
+# Using Dockerfile for reliable monorepo builds
 # =====================================================================
 
 name: controlbox
@@ -14,16 +14,15 @@ envs:
     value: production
 
 services:
-  # Backend API Server
+  # Backend API Server (using Dockerfile)
   - name: api
     github:
       repo: SingSongScreamAlong/ControlBox
       branch: main
       deploy_on_push: true
-    # Use Node.js buildpack with explicit build commands
-    environment_slug: node-js
-    build_command: npm install && npm run build --workspaces
-    run_command: node packages/server/dist/index.js
+    # Use Dockerfile with target stage
+    dockerfile_path: Dockerfile
+    docker_target: server
     http_port: 8080
     instance_count: 1
     instance_size_slug: basic-xxs  # $5/mo - upgrade as needed
@@ -48,18 +47,18 @@ services:
         scope: RUN_TIME
         type: SECRET
 
-  # Frontend Dashboard (static site)
+  # Frontend Dashboard (using Dockerfile)
   - name: dashboard
     github:
       repo: SingSongScreamAlong/ControlBox
       branch: main
       deploy_on_push: true
-    build_command: npm install && npm run build --workspaces
-    environment_slug: node-js
-    # Build from root to get all files, output from dashboard dist
-    output_dir: packages/dashboard/dist
-    index_document: index.html
-    error_document: index.html  # SPA fallback
+    # Use Dockerfile with dashboard target
+    dockerfile_path: Dockerfile
+    docker_target: dashboard
+    http_port: 80
+    instance_count: 1
+    instance_size_slug: basic-xxs
     envs:
       - key: VITE_API_URL
         scope: BUILD_TIME
