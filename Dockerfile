@@ -22,8 +22,10 @@ COPY packages/common ./packages/common
 COPY packages/server ./packages/server
 COPY packages/dashboard ./packages/dashboard
 
-# Build all packages
-RUN npm run build
+# Build all packages (build common first, then server and dashboard)
+RUN npm run build -w packages/common && \
+    npm run build -w packages/server && \
+    npm run build -w packages/dashboard
 
 # Stage 2: Production Server
 FROM node:20-alpine AS server
