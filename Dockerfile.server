@@ -7,7 +7,7 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy package files
+# Copy package files (including root package-lock.json)
 COPY package*.json ./
 COPY packages/common/package*.json ./packages/common/
 COPY packages/server/package*.json ./packages/server/
@@ -17,7 +17,7 @@ COPY packages/dashboard/package*.json ./packages/dashboard/
 RUN npm ci
 
 # Cache bust argument - change this value to force fresh source copy
-ARG CACHE_BUST=2024121002
+ARG CACHE_BUST=2024121003
 
 # Copy source code
 COPY tsconfig.base.json ./
@@ -34,22 +34,26 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Copy built server and common packages
-COPY --from=builder /app/packages/server/dist ./packages/server/dist
+# Copy package files for production install (need root lock file for workspaces)
+COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/packages/server/package*.json ./packages/server/
-COPY --from=builder /app/packages/common/dist ./packages/common/dist
 COPY --from=builder /app/packages/common/package*.json ./packages/common/
+
+# Copy built packages
+COPY --from=builder /app/packages/server/dist ./packages/server/dist
+COPY --from=builder /app/packages/common/dist ./packages/common/dist
 
 # Copy migrations
 COPY --from=builder /app/packages/server/src/db/migrations ./packages/server/src/db/migrations
 
-# Install production dependencies only
-WORKDIR /app/packages/server
-RUN npm ci --only=production
+# Install production dependencies for server workspace
+RUN npm ci --omit=dev -w packages/server -w packages/common
 
 # Set runtime environment
 ENV NODE_ENV=production
 ENV PORT=8080
+
+WORKDIR /app/packages/server
 
 EXPOSE 8080
 
