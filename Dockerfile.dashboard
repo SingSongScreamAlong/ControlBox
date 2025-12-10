@@ -1,0 +1,65 @@
+# =====================================================================
+# ControlBox Dashboard Dockerfile
+# =====================================================================
+
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY packages/common/package*.json ./packages/common/
+COPY packages/server/package*.json ./packages/server/
+COPY packages/dashboard/package*.json ./packages/dashboard/
+
+# Install dependencies
+RUN npm ci
+
+# Cache bust argument - change this value to force fresh source copy
+ARG CACHE_BUST=2024121002
+
+# Copy source code
+COPY tsconfig.base.json ./
+COPY packages/common ./packages/common
+COPY packages/server ./packages/server
+COPY packages/dashboard ./packages/dashboard
+
+# Build common and dashboard packages
+RUN npm run build -w packages/common && \
+    npm run build -w packages/dashboard
+
+# Stage 2: Production Dashboard (LAST STAGE - this is what gets deployed)
+FROM nginx:alpine
+
+# Copy built dashboard
+COPY --from=builder /app/packages/dashboard/dist /usr/share/nginx/html
+
+# Custom nginx config for SPA
+COPY <<EOF /etc/nginx/conf.d/default.conf
+server {
+    listen 80;
+    server_name _;
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Gzip
+    gzip on;
+    gzip_types text/plain application/json application/javascript text/css;
+
+    # SPA fallback
+    location / {
+        try_files \$uri \$uri/ /index.html;
+    }
+
+    # Cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+}
+EOF
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]

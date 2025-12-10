@@ -1,0 +1,46 @@
+name: coral-app
+region: nyc
+alerts:
+- rule: DEPLOYMENT_FAILED
+- rule: DOMAIN_FAILED
+services:
+- name: controlbox
+  dockerfile_path: Dockerfile.server
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: SingSongScreamAlong/ControlBox
+  source_dir: /
+  http_port: 8080
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  envs:
+  - key: NODE_ENV
+    value: production
+  - key: PORT
+    value: "8080"
+- name: dashboard
+  dockerfile_path: Dockerfile.dashboard
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: SingSongScreamAlong/ControlBox
+  source_dir: /
+  http_port: 80
+  instance_count: 1
+  instance_size_slug: apps-s-1vcpu-0.5gb
+  envs:
+  - key: NODE_ENV
+    value: production
+ingress:
+  rules:
+  - component:
+      name: controlbox
+    match:
+      path:
+        prefix: /api
+  - component:
+      name: dashboard
+    match:
+      path:
+        prefix: /

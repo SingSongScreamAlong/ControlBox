@@ -1,0 +1,61 @@
+# =====================================================================
+# ControlBox Server Dockerfile
+# =====================================================================
+
+# Stage 1: Build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY packages/common/package*.json ./packages/common/
+COPY packages/server/package*.json ./packages/server/
+COPY packages/dashboard/package*.json ./packages/dashboard/
+
+# Install dependencies
+RUN npm ci
+
+# Cache bust argument - change this value to force fresh source copy
+ARG CACHE_BUST=2024121002
+
+# Copy source code
+COPY tsconfig.base.json ./
+COPY packages/common ./packages/common
+COPY packages/server ./packages/server
+COPY packages/dashboard ./packages/dashboard
+
+# Build common and server packages
+RUN npm run build -w packages/common && \
+    npm run build -w packages/server
+
+# Stage 2: Production Server (LAST STAGE - this is what gets deployed)
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy built server and common packages
+COPY --from=builder /app/packages/server/dist ./packages/server/dist
+COPY --from=builder /app/packages/server/package*.json ./packages/server/
+COPY --from=builder /app/packages/common/dist ./packages/common/dist
+COPY --from=builder /app/packages/common/package*.json ./packages/common/
+
+# Copy migrations
+COPY --from=builder /app/packages/server/src/db/migrations ./packages/server/src/db/migrations
+
+# Install production dependencies only
+WORKDIR /app/packages/server
+RUN npm ci --only=production
+
+# Set runtime environment
+ENV NODE_ENV=production
+ENV PORT=8080
+
+EXPOSE 8080
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/health || exit 1
+
+# Start server
+CMD ["node", "dist/index.js"]
