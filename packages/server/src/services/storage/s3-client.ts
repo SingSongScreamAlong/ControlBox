@@ -3,6 +3,8 @@
 // DigitalOcean Spaces (S3-compatible) utilities
 // =====================================================================
 
+import { Buffer } from 'node:buffer';
+
 // Configuration
 const DO_SPACES_ENDPOINT = process.env.DO_SPACES_ENDPOINT || 'nyc3.digitaloceanspaces.com';
 const DO_SPACES_BUCKET = process.env.DO_SPACES_BUCKET || 'controlbox-artifacts';
