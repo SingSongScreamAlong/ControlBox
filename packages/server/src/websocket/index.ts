@@ -38,6 +38,11 @@ export function initializeWebSocket(httpServer: HttpServer): Server {
     io.on('connection', (socket: Socket) => {
         console.log(`🔌 Client connected: ${socket.id}`);
 
+        // Debug: Log all incoming events
+        socket.onAny((eventName, ...args) => {
+            console.log(`📨 Event received: ${eventName}`, JSON.stringify(args).substring(0, 200));
+        });
+
         // Join session room (for dashboard clients)
         socket.on('room:join', (data: JoinRoomMessage) => {
             const roomName = `session:${data.sessionId}`;
