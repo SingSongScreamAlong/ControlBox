@@ -28,6 +28,41 @@ export function initializeWebSocket(httpServer: HttpServer): Server {
     io.on('connection', (socket: Socket) => {
         console.log(`🔌 Client connected: ${socket.id}`);
 
+        // =====================================================================
+        // Relay Agent Events (from Python iRacing relay)
+        // =====================================================================
+
+        socket.on('session_metadata', (data: unknown) => {
+            console.log(`📊 Session metadata received:`, data);
+            // Broadcast to all dashboard clients
+            socket.broadcast.emit('session:metadata', data);
+        });
+
+        socket.on('telemetry', (data: unknown) => {
+            // Don't log every telemetry frame (too noisy)
+            // Broadcast to all dashboard clients in the session
+            socket.broadcast.emit('telemetry:update', data);
+        });
+
+        socket.on('incident', (data: unknown) => {
+            console.log(`⚠️ Incident received:`, data);
+            socket.broadcast.emit('incident:new', data);
+        });
+
+        socket.on('race_event', (data: unknown) => {
+            console.log(`🏁 Race event:`, data);
+            socket.broadcast.emit('race:event', data);
+        });
+
+        socket.on('driver_update', (data: unknown) => {
+            console.log(`👤 Driver update:`, data);
+            socket.broadcast.emit('driver:update', data);
+        });
+
+        // =====================================================================
+        // Dashboard Client Events
+        // =====================================================================
+
         // Join session room
         socket.on('room:join', (data: JoinRoomMessage) => {
             const roomName = `session:${data.sessionId}`;

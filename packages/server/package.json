@@ -7,6 +7,7 @@
     "scripts": {
         "build": "tsc",
         "dev": "tsx watch src/index.ts",
+        "standalone": "tsx src/standalone.ts",
         "start": "node dist/index.js",
         "test": "jest",
         "typecheck": "tsc --noEmit",

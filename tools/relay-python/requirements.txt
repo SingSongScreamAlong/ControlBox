@@ -1,5 +1,5 @@
 # iRacing Relay Agent Dependencies
-pyirsdk>=1.4.0
+pyirsdk>=1.3.5
 python-socketio[client]>=5.10.0
 websocket-client>=1.6.0
 pyyaml>=6.0
