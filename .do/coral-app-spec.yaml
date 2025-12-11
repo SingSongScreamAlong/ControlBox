@@ -59,6 +59,11 @@ ingress:
       path:
         prefix: /api
   - component:
+      name: controlbox
+    match:
+      path:
+        prefix: /socket.io
+  - component:
       name: dashboard
     match:
       path:

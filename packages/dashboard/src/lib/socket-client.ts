@@ -13,6 +13,13 @@ import type {
 
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'error';
 
+// Extended event for active session broadcast
+interface SessionActiveMessage {
+    sessionId: string;
+    trackName: string;
+    sessionType: string;
+}
+
 interface SocketClientEvents {
     onConnect: () => void;
     onDisconnect: () => void;
@@ -22,6 +29,7 @@ interface SocketClientEvents {
     onPenaltyProposed: (message: PenaltyProposedMessage) => void;
     onPenaltyApproved: (message: PenaltyProposedMessage) => void;
     onSessionState: (message: SessionStateMessage) => void;
+    onSessionActive: (message: SessionActiveMessage) => void;
 }
 
 class SocketClient {
@@ -62,6 +70,18 @@ class SocketClient {
         this.socket.on('connect_error', (error) => {
             console.error('Connection error:', error);
             this.status = 'error';
+        });
+
+        // Session active broadcast - auto-join when relay sends session
+        this.socket.on('session:active', (message: SessionActiveMessage) => {
+            console.log(`📡 Active session detected: ${message.trackName} [${message.sessionType}]`);
+
+            // Auto-join the session room
+            if (!this.currentSessionId) {
+                this.joinSession(message.sessionId);
+            }
+
+            this.listeners.onSessionActive?.(message);
         });
 
         // Event listeners

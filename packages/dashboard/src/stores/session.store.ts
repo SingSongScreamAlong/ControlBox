@@ -61,22 +61,62 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
     connect: () => {
         socketClient.on('onConnect', () => {
-            set({ isConnected: true, connectionError: null });
+            set({ isConnected: true, connectionStatus: 'connected', connectionError: null });
         });
 
         socketClient.on('onDisconnect', () => {
-            set({ isConnected: false });
+            set({ isConnected: false, connectionStatus: 'disconnected' });
         });
 
+        // Handle session:active - auto-create session when relay connects
+        socketClient.on('onSessionActive', (message) => {
+            console.log('📡 Session active:', message.trackName);
+
+            // Create a session object from the broadcast
+            const session: Session = {
+                id: message.sessionId,
+                externalId: message.sessionId,
+                simType: 'iracing',
+                trackName: message.trackName,
+                sessionType: (message.sessionType || 'race') as 'practice' | 'qualifying' | 'race' | 'warmup',
+                status: 'active',
+                incidentCount: 0,
+                penaltyCount: 0,
+                driverCount: 0,
+                metadata: {},
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            };
+
+            set({ currentSession: session });
+        });
+
+        // Handle timing updates - always update if we have any session
         socketClient.on('onTimingUpdate', (message) => {
-            if (message.sessionId === get().currentSession?.id && message.timing) {
-                set({ timing: message.timing.entries || [] });
+            const current = get().currentSession;
+            // Accept timing if session matches OR if we don't have a session yet (auto-join mode)
+            if (!current || message.sessionId === current.id) {
+                set({ timing: message.timing?.entries || [] });
+
+                // Also extract drivers from timing
+                const drivers: SessionDriver[] = (message.timing?.entries || []).map(entry => ({
+                    id: entry.driverId,
+                    sessionId: message.sessionId,
+                    driverId: entry.driverId,
+                    driverName: entry.driverName || 'Unknown',
+                    carNumber: entry.carNumber || '??',
+                    carName: '',
+                    irating: 0,
+                    safetyRating: 0,
+                    isActive: true,
+                    joinedAt: new Date(),
+                }));
+                set({ drivers });
             }
         });
 
         socketClient.on('onSessionState', (_message) => {
-            // Session state updates - drivers would come from REST API
-            // This event is for state changes like pause/resume/end
+            // Session state updates - handled separately
         });
 
         socketClient.connect();
@@ -100,22 +140,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     },
 
     initializeListeners: () => {
-        socketClient.on('onConnect', () => {
-            set({ isConnected: true, connectionStatus: 'connected', connectionError: null });
-        });
-
-        socketClient.on('onDisconnect', () => {
-            set({ isConnected: false, connectionStatus: 'disconnected' });
-        });
-
-        socketClient.on('onTimingUpdate', (message) => {
-            if (message.sessionId === get().currentSession?.id && message.timing) {
-                set({ timing: message.timing.entries || [] });
-            }
-        });
-
-        socketClient.on('onSessionState', (_message) => {
-            // Session state updates - handled separately
-        });
+        // Listeners are set up in connect() - this is for backward compatibility
     },
 }));
+
