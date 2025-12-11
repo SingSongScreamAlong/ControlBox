@@ -17,7 +17,11 @@ COPY packages/dashboard/package*.json ./packages/dashboard/
 RUN npm ci
 
 # Cache bust argument - change this value to force fresh source copy
-ARG CACHE_BUST=2024121003
+ARG CACHE_BUST=2024121004
+
+# API URL for Vite build - pass from DigitalOcean App Platform
+ARG VITE_API_URL=https://coral-app-x988a.ondigitalocean.app
+ENV VITE_API_URL=$VITE_API_URL
 
 # Copy source code
 COPY tsconfig.base.json ./
