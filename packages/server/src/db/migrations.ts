@@ -7,8 +7,24 @@ import { pool } from './client.js';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
 
-// Use process.cwd() for migrations path since we're in ESM context
-const MIGRATIONS_DIR = join(process.cwd(), 'packages/server/src/db/migrations');
+// Try multiple possible paths for migrations (works in both local dev and Docker)
+const POSSIBLE_PATHS = [
+    '/app/packages/server/src/db/migrations',           // Docker container path
+    join(process.cwd(), 'packages/server/src/db/migrations'),  // npm workspace root
+    join(process.cwd(), 'src/db/migrations'),           // Direct in server package
+];
+
+// Find the first existing migrations directory
+function findMigrationsDir(): string | null {
+    for (const path of POSSIBLE_PATHS) {
+        if (existsSync(path)) {
+            console.log(`   📁 Found migrations at: ${path}`);
+            return path;
+        }
+    }
+    console.log(`   ℹ️  Checked paths: ${POSSIBLE_PATHS.join(', ')}`);
+    return null;
+}
 
 /**
  * Run all pending migrations
@@ -29,8 +45,9 @@ export async function runMigrations(): Promise<void> {
             )
         `);
 
-        // Get list of migration files
-        if (!existsSync(MIGRATIONS_DIR)) {
+        // Find migrations directory
+        const MIGRATIONS_DIR = findMigrationsDir();
+        if (!MIGRATIONS_DIR) {
             console.log('   ⚠️  No migrations directory found, skipping');
             return;
         }
