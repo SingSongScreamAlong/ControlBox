@@ -43,6 +43,20 @@ export function initializeWebSocket(httpServer: HttpServer): Server {
             console.log(`📨 Event received: ${eventName}`, JSON.stringify(args).substring(0, 200));
         });
 
+        // Send any active sessions to the new client immediately
+        // This allows late-joining dashboards to auto-join the session
+        for (const session of activeSessions.values()) {
+            // Only send if recent update (within last 30 seconds)
+            if (Date.now() - session.lastUpdate < 30000) {
+                console.log(`   Sending active session ${session.sessionId} to new client ${socket.id}`);
+                socket.emit('session:active', {
+                    sessionId: session.sessionId,
+                    trackName: session.trackName,
+                    sessionType: session.sessionType
+                });
+            }
+        }
+
         // Join session room (for dashboard clients)
         socket.on('room:join', (data: JoinRoomMessage) => {
             const roomName = `session:${data.sessionId}`;
