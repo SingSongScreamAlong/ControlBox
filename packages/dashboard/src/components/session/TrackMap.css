@@ -1,35 +1,54 @@
 /* =====================================================================
-   Track Map Styles
-   Visualization for real-time car positions
+   Track Map Styles - Racing DDU Edition
+   Neon glow effects, gradient track surface, racing aesthetics
    ===================================================================== */
 
 .track-map {
-    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-    border-radius: 0.75rem;
-    border: 1px solid rgba(71, 85, 105, 0.5);
+    background: linear-gradient(180deg, #0a0a0a 0%, #0f0f0f 100%);
+    border-radius: 1rem;
+    border: 1px solid rgba(0, 212, 255, 0.15);
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    position: relative;
+}
+
+/* Ambient glow effect */
+.track-map::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.05) 0%, transparent 70%);
+    pointer-events: none;
 }
 
 .track-map__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+    padding: 0.875rem 1.25rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, transparent 100%);
 }
 
 .track-map__header h3 {
-    font-size: 0.875rem;
+    font-family: 'Orbitron', monospace;
+    font-size: 0.75rem;
     font-weight: 600;
-    color: #fff;
+    color: #00d4ff;
     margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
 }
 
 .track-map__name {
+    font-family: 'Inter', sans-serif;
     font-size: 0.75rem;
-    color: #94a3b8;
+    font-weight: 500;
+    color: #a1a1aa;
 }
 
 .track-map__svg {
@@ -38,19 +57,29 @@
     min-height: 150px;
 }
 
-/* Track surface */
+/* Track surface with gradient */
+.track-surface-outer {
+    fill: #1a1a2e;
+    filter: drop-shadow(0 0 8px rgba(0, 212, 255, 0.15));
+}
+
+.track-surface-inner {
+    fill: #0a0a0a;
+}
+
 .track-surface {
-    stroke: #334155;
+    stroke: rgba(0, 212, 255, 0.3);
 }
 
 .track-line {
-    stroke: rgba(255, 255, 255, 0.3);
+    stroke: rgba(0, 212, 255, 0.2);
 }
 
-/* Corner markers */
+/* Corner markers with glow */
 .corner-marker {
-    opacity: 0.6;
-    transition: opacity 0.2s;
+    opacity: 0.7;
+    transition: all 0.3s ease;
+    cursor: pointer;
 }
 
 .corner-marker:hover {
@@ -58,87 +87,115 @@
 }
 
 .corner-label {
-    font-size: 8px;
-    fill: #94a3b8;
-    font-family: system-ui, sans-serif;
+    font-size: 7px;
+    fill: #71717a;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
-/* Car markers */
+.corner-marker:hover .corner-label,
+.corner-marker.hovered .corner-label {
+    fill: #00d4ff;
+}
+
+/* Car markers with neon glow */
 .car-marker {
-    transition: transform 0.3s ease-out;
+    transition: all 0.15s ease-out;
+}
+
+.car-marker circle {
+    filter: drop-shadow(0 0 6px currentColor);
 }
 
 .car-number {
-    font-size: 7px;
+    font-size: 6px;
     fill: #fff;
-    font-weight: 600;
-    font-family: system-ui, sans-serif;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
 }
 
-/* Incident zones */
+/* Leader marker - golden glow */
+.car-marker.leader circle {
+    filter: drop-shadow(0 0 10px #fbbf24);
+}
+
+/* Incident zones with pulsing glow */
 .incident-zone {
-    animation: pulse-glow 1.5s ease-in-out infinite;
+    animation: incident-pulse 1.2s ease-in-out infinite;
+    filter: drop-shadow(0 0 15px currentColor);
 }
 
-@keyframes pulse-glow {
+@keyframes incident-pulse {
 
     0%,
     100% {
-        opacity: 0.3;
-        r: 15;
+        opacity: 0.4;
+        transform: scale(1);
     }
 
     50% {
-        opacity: 0.6;
-        r: 20;
+        opacity: 0.8;
+        transform: scale(1.15);
     }
 }
 
-/* Legend */
+/* Legend with racing style */
 .track-map__legend {
     display: flex;
-    gap: 1rem;
-    padding: 0.5rem 1rem;
-    border-top: 1px solid rgba(71, 85, 105, 0.3);
+    gap: 1.25rem;
+    padding: 0.625rem 1.25rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
     font-size: 0.625rem;
-    color: #94a3b8;
+    font-family: 'JetBrains Mono', monospace;
+    color: #71717a;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
 }
 
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 0.25rem;
+    gap: 0.375rem;
 }
 
 .legend-item .dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
+    box-shadow: 0 0 6px currentColor;
 }
 
 .legend-item .dot.gold {
-    background: #fbbf24;
+    background: #ffcc00;
+    box-shadow: 0 0 8px rgba(255, 204, 0, 0.6);
 }
 
 .legend-item .dot.blue {
-    background: #3b82f6;
+    background: #00d4ff;
+    box-shadow: 0 0 8px rgba(0, 212, 255, 0.6);
 }
 
 .legend-item .dot.gray {
-    background: #6b7280;
+    background: #52525b;
+    box-shadow: none;
 }
 
-/* Flag indicators */
+/* Flag indicators with glow */
 .track-map--yellow {
-    border-color: rgba(251, 191, 36, 0.5);
+    border-color: rgba(255, 204, 0, 0.4);
+    box-shadow: inset 0 0 30px rgba(255, 204, 0, 0.1);
 }
 
 .track-map--red {
-    border-color: rgba(239, 68, 68, 0.5);
+    border-color: rgba(255, 51, 102, 0.4);
+    box-shadow: inset 0 0 30px rgba(255, 51, 102, 0.1);
 }
 
 .track-map--sc {
-    background: linear-gradient(180deg, #1e293b 0%, #422006 100%);
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1400 100%);
+    border-color: rgba(255, 204, 0, 0.3);
 }
 
 /* Mini variant */
@@ -147,7 +204,7 @@
 }
 
 .track-map--mini .track-map__header {
-    padding: 0.5rem;
+    padding: 0.5rem 0.75rem;
 }
 
 .track-map--mini .track-map__legend {
@@ -158,56 +215,84 @@
     display: none;
 }
 
-/* Sector markers */
+/* Sector markers with racing green */
 .sector-marker {
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
 .sector-label {
-    font-size: 8px;
-    font-weight: 600;
-    font-family: system-ui, sans-serif;
+    font-size: 7px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    fill: #00ff88;
+}
+
+/* Sector line */
+.sector-marker line {
+    stroke: #00ff88;
+    filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.5));
 }
 
 /* Pit markers */
 .pit-marker {
-    opacity: 0.9;
+    opacity: 0.95;
 }
 
 .pit-label {
-    font-size: 7px;
-    font-weight: 600;
-    font-family: system-ui, sans-serif;
+    font-size: 6px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
 }
 
-/* Corner hover state */
+/* Pit entry - orange */
+.pit-marker circle[fill="#f97316"] {
+    filter: drop-shadow(0 0 6px rgba(249, 115, 22, 0.6));
+}
+
+/* Pit exit - green */
+.pit-marker circle[fill="#22c55e"] {
+    filter: drop-shadow(0 0 6px rgba(34, 197, 94, 0.6));
+}
+
+/* Corner hover state with glow */
 .corner-marker.hovered circle {
-    filter: drop-shadow(0 0 4px #3b82f6);
+    filter: drop-shadow(0 0 8px #00d4ff);
 }
 
-/* Turn info tooltip */
+/* Turn info tooltip - racing style */
 .track-map__turn-info {
     position: absolute;
-    bottom: 40px;
+    bottom: 45px;
     left: 50%;
     transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
+    background: linear-gradient(135deg, rgba(10, 10, 10, 0.95) 0%, rgba(20, 20, 20, 0.95) 100%);
+    padding: 0.375rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 212, 255, 0.3);
     font-size: 0.625rem;
+    font-family: 'JetBrains Mono', monospace;
     color: #fff;
     display: flex;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 0.5rem;
     white-space: nowrap;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
 }
 
 .track-map__turn-info strong {
-    color: #3b82f6;
+    color: #00d4ff;
+    font-weight: 700;
 }
 
 /* Track count in legend */
 .legend-item.track-count {
     margin-left: auto;
-    color: #64748b;
-    font-style: italic;
+    color: #52525b;
+    font-style: normal;
+}
+
+/* Start/Finish line glow */
+.track-map line[stroke="#fff"] {
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.8));
 }

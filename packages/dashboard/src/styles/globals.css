@@ -1,15 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Base styles */
+/* =====================================================================
+   Racing DDU Inspired Theme - True Dark Mode
+   Inspired by lovely-dashboard
+   ===================================================================== */
+
 :root {
-  --color-bg-primary: #0f172a;
-  --color-bg-secondary: #1e293b;
-  --color-bg-tertiary: #334155;
-  --color-text-primary: #f8fafc;
-  --color-text-secondary: #94a3b8;
-  --color-accent: #0ea5e9;
+  /* True Dark Mode - Deep blacks */
+  --color-bg-primary: #0a0a0a;
+  --color-bg-secondary: #141414;
+  --color-bg-tertiary: #1f1f1f;
+  --color-bg-card: rgba(20, 20, 20, 0.8);
+
+  /* Racing accent colors */
+  --color-racing-blue: #00d4ff;
+  --color-racing-green: #00ff88;
+  --color-racing-yellow: #ffcc00;
+  --color-racing-red: #ff3366;
+  --color-racing-purple: #a855f7;
+
+  /* Text colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a1a1aa;
+  --color-text-muted: #71717a;
+
+  /* Glow effects */
+  --glow-blue: 0 0 20px rgba(0, 212, 255, 0.4);
+  --glow-green: 0 0 20px rgba(0, 255, 136, 0.4);
+  --glow-red: 0 0 20px rgba(255, 51, 102, 0.4);
+  --glow-yellow: 0 0 20px rgba(255, 204, 0, 0.4);
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-accent: rgba(0, 212, 255, 0.3);
 }
 
 html {
@@ -18,14 +45,27 @@ html {
 
 body {
   font-family: 'Inter', system-ui, sans-serif;
-  background-color: var(--color-bg-primary);
+  background: var(--color-bg-primary);
+  background-image:
+    radial-gradient(ellipse at top, rgba(0, 212, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(ellipse at bottom, rgba(0, 0, 0, 0) 0%, var(--color-bg-primary) 100%);
   color: var(--color-text-primary);
+  min-height: 100vh;
+}
+
+/* Racing monospace font for telemetry data */
+.font-racing {
+  font-family: 'Orbitron', monospace;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', monospace;
 }
 
 /* Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -33,68 +73,192 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--color-bg-tertiary);
-  border-radius: 4px;
+  background: linear-gradient(180deg, var(--color-racing-blue), rgba(0, 212, 255, 0.3));
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--color-racing-blue);
 }
 
 /* Custom utility classes */
 @layer components {
+
+  /* Racing-style cards with glass morphism */
   .card {
-    @apply bg-slate-800/50 border border-slate-700/50 rounded-lg backdrop-blur-sm;
+    @apply rounded-xl backdrop-blur-md;
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%);
+    border: 1px solid var(--border-subtle);
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
-  
+
+  .card:hover {
+    border-color: var(--border-accent);
+    box-shadow:
+      0 4px 24px rgba(0, 0, 0, 0.4),
+      var(--glow-blue),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
   .card-header {
-    @apply px-4 py-3 border-b border-slate-700/50 flex items-center justify-between;
+    @apply px-5 py-4 flex items-center justify-between;
+    border-bottom: 1px solid var(--border-subtle);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, transparent 100%);
   }
-  
+
   .card-body {
-    @apply p-4;
+    @apply p-5;
   }
-  
+
+  /* Racing buttons with glow */
   .btn {
-    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    @apply px-5 py-2.5 rounded-lg font-semibold transition-all duration-300;
+    font-family: 'Inter', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.8rem;
   }
-  
+
   .btn-primary {
-    @apply bg-primary-600 hover:bg-primary-700 text-white;
+    background: linear-gradient(135deg, var(--color-racing-blue) 0%, #0099cc 100%);
+    color: #000;
+    box-shadow: var(--glow-blue);
   }
-  
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #00e5ff 0%, var(--color-racing-blue) 100%);
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+    transform: translateY(-1px);
+  }
+
   .btn-secondary {
-    @apply bg-slate-700 hover:bg-slate-600 text-white;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--color-text-primary);
+    border: 1px solid var(--border-subtle);
   }
-  
+
+  .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--color-racing-blue);
+  }
+
   .btn-danger {
-    @apply bg-red-600 hover:bg-red-700 text-white;
+    background: linear-gradient(135deg, var(--color-racing-red) 0%, #cc2952 100%);
+    color: #fff;
+    box-shadow: var(--glow-red);
   }
-  
+
+  .btn-danger:hover {
+    box-shadow: 0 0 30px rgba(255, 51, 102, 0.6);
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, var(--color-racing-green) 0%, #00cc6a 100%);
+    color: #000;
+    box-shadow: var(--glow-green);
+  }
+
+  /* Racing badges with glow accents */
   .badge {
-    @apply inline-flex items-center px-2 py-0.5 rounded text-xs font-medium;
+    @apply inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide;
   }
-  
+
   .badge-light {
-    @apply bg-amber-100 text-amber-800;
+    background: rgba(255, 204, 0, 0.15);
+    color: var(--color-racing-yellow);
+    border: 1px solid rgba(255, 204, 0, 0.3);
   }
-  
+
   .badge-medium {
-    @apply bg-orange-200 text-orange-700;
+    background: rgba(255, 136, 0, 0.15);
+    color: #ff8800;
+    border: 1px solid rgba(255, 136, 0, 0.3);
   }
-  
+
   .badge-heavy {
-    @apply bg-red-100 text-red-800;
+    background: rgba(255, 51, 102, 0.15);
+    color: var(--color-racing-red);
+    border: 1px solid rgba(255, 51, 102, 0.3);
   }
-  
+
+  /* Racing inputs with accent border */
   .input {
-    @apply w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg 
-           text-white placeholder-slate-500 focus:outline-none focus:ring-2 
-           focus:ring-primary-500 focus:border-transparent transition-all;
+    @apply w-full px-4 py-3 rounded-lg transition-all duration-300;
+    background: var(--color-bg-secondary);
+    border: 1px solid var(--border-subtle);
+    color: var(--color-text-primary);
   }
-  
+
+  .input::placeholder {
+    color: var(--color-text-muted);
+  }
+
+  .input:focus {
+    outline: none;
+    border-color: var(--color-racing-blue);
+    box-shadow: var(--glow-blue);
+  }
+
+  /* Table rows with racing stripe effect */
   .table-row {
-    @apply border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors;
+    position: relative;
+    border-bottom: 1px solid var(--border-subtle);
+    transition: all 0.2s ease;
+  }
+
+  .table-row:hover {
+    background: linear-gradient(90deg, rgba(0, 212, 255, 0.08) 0%, transparent 100%);
+  }
+
+  .table-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: transparent;
+    transition: background 0.2s ease;
+  }
+
+  .table-row:hover::before {
+    background: var(--color-racing-blue);
+  }
+
+  /* Racing stat cards */
+  .stat-card {
+    @apply rounded-xl p-5 relative overflow-hidden;
+    background: linear-gradient(135deg, rgba(20, 20, 20, 0.9) 0%, rgba(10, 10, 10, 0.95) 100%);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-racing-blue), transparent);
+  }
+
+  .stat-value {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff 0%, var(--color-racing-blue) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--color-text-muted);
   }
 }
 
@@ -103,9 +267,17 @@ body {
   .animate-pulse-slow {
     animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  
+
   .animate-slide-in {
     animation: slideIn 0.3s ease-out forwards;
+  }
+
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite;
+  }
+
+  .animate-race-stripe {
+    animation: raceStripe 1s ease-out forwards;
   }
 }
 
@@ -114,8 +286,83 @@ body {
     opacity: 0;
     transform: translateX(20px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
   }
+}
+
+@keyframes glow {
+
+  0%,
+  100% {
+    box-shadow: var(--glow-blue);
+  }
+
+  50% {
+    box-shadow: 0 0 40px rgba(0, 212, 255, 0.6);
+  }
+}
+
+@keyframes raceStripe {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Racing-specific text colors */
+.text-racing-blue {
+  color: var(--color-racing-blue);
+}
+
+.text-racing-green {
+  color: var(--color-racing-green);
+}
+
+.text-racing-yellow {
+  color: var(--color-racing-yellow);
+}
+
+.text-racing-red {
+  color: var(--color-racing-red);
+}
+
+/* Background racing colors */
+.bg-racing-blue {
+  background-color: var(--color-racing-blue);
+}
+
+.bg-racing-green {
+  background-color: var(--color-racing-green);
+}
+
+.bg-racing-yellow {
+  background-color: var(--color-racing-yellow);
+}
+
+.bg-racing-red {
+  background-color: var(--color-racing-red);
+}
+
+/* Glow border utilities */
+.border-glow-blue {
+  border: 1px solid var(--color-racing-blue);
+  box-shadow: var(--glow-blue);
+}
+
+.border-glow-red {
+  border: 1px solid var(--color-racing-red);
+  box-shadow: var(--glow-red);
+}
+
+.border-glow-green {
+  border: 1px solid var(--color-racing-green);
+  box-shadow: var(--glow-green);
 }
