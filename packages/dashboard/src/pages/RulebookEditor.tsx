@@ -270,7 +270,7 @@ export function RulebookEditor() {
                                         onClick={() => setShowUploadModal(true)}
                                         className="btn btn-secondary"
                                     >
-                                        🤖 Import from AI
+                                        🤖 Import
                                     </button>
                                     <button
                                         onClick={() => setShowAddRuleModal(true)}
