@@ -55,9 +55,16 @@ ingress:
   rules:
   - component:
       name: controlbox
+      preserve_path_prefix: true
     match:
       path:
         prefix: /api
+  - component:
+      name: controlbox
+      preserve_path_prefix: true
+    match:
+      path:
+        prefix: /socket.io
   - component:
       name: dashboard
     match:
