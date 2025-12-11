@@ -60,7 +60,15 @@ def map_telemetry_snapshot(session_id: str, cars: List[CarData]) -> Dict[str, An
             'inPit': car.in_pit,
             'lap': car.lap,
             'position': car.position,
-            'classPosition': car.class_position
+            'classPosition': car.class_position,
+            # Track map coordinates (NEW)
+            'lat': car.lat,
+            'lon': car.lon,
+            'alt': car.alt,
+            'velocityX': car.velocity_x,
+            'velocityY': car.velocity_y,
+            'velocityZ': car.velocity_z,
+            'yaw': car.yaw
         })
     
     return {

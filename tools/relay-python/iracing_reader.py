@@ -43,6 +43,14 @@ class CarData:
     incident_count: int
     last_lap_time: float
     best_lap_time: float
+    # Track map coordinates (NEW)
+    lat: float = 0.0           # Latitude (player car only)
+    lon: float = 0.0           # Longitude (player car only)
+    alt: float = 0.0           # Altitude (player car only)
+    velocity_x: float = 0.0    # X velocity (m/s)
+    velocity_y: float = 0.0    # Y velocity (m/s)
+    velocity_z: float = 0.0    # Z velocity (m/s)
+    yaw: float = 0.0           # Heading angle (radians)
 
 
 @dataclass
@@ -183,6 +191,15 @@ class IRacingReader:
             player_steering = self.ir['SteeringWheelAngle'] or 0
             player_rpm = self.ir['RPM'] or 0
             
+            # Coordinate data (player car only for track map)
+            player_lat = self.ir['Lat'] or 0
+            player_lon = self.ir['Lon'] or 0
+            player_alt = self.ir['Alt'] or 0
+            player_vel_x = self.ir['VelocityX'] or 0
+            player_vel_y = self.ir['VelocityY'] or 0
+            player_vel_z = self.ir['VelocityZ'] or 0
+            player_yaw = self.ir['Yaw'] or 0
+            
             for car_idx, driver_info in self._car_info_cache.items():
                 if car_idx >= len(positions) or positions[car_idx] <= 0:
                     continue  # Skip cars not in session
@@ -193,6 +210,9 @@ class IRacingReader:
                     incident_count = self.ir['CarIdxSessionFlags'][car_idx] if self.ir['CarIdxSessionFlags'] else 0
                 except (IndexError, TypeError):
                     pass
+                
+                # Populate coordinate data for player car only
+                is_player = car_idx == player_car_idx
                 
                 car_data = CarData(
                     car_id=car_idx,
@@ -205,20 +225,28 @@ class IRacingReader:
                     safety_rating=float(driver_info.get('LicString', '0.00').replace('A', '').replace('B', '').replace('C', '').replace('D', '').replace('R', '').replace(' ', '') or 0),
                     class_id=driver_info.get('CarClassID', 0),
                     class_name=driver_info.get('CarClassShortName', ''),
-                    speed=player_speed if car_idx == player_car_idx else 0,
-                    gear=player_gear if car_idx == player_car_idx else 0,
+                    speed=player_speed if is_player else 0,
+                    gear=player_gear if is_player else 0,
                     track_pct=lap_pcts[car_idx] if car_idx < len(lap_pcts) else 0,
-                    throttle=player_throttle if car_idx == player_car_idx else 0,
-                    brake=player_brake if car_idx == player_car_idx else 0,
-                    steering=player_steering if car_idx == player_car_idx else 0,
-                    rpm=player_rpm if car_idx == player_car_idx else 0,
+                    throttle=player_throttle if is_player else 0,
+                    brake=player_brake if is_player else 0,
+                    steering=player_steering if is_player else 0,
+                    rpm=player_rpm if is_player else 0,
                     in_pit=bool(on_pit[car_idx]) if car_idx < len(on_pit) else False,
                     lap=laps[car_idx] if car_idx < len(laps) else 0,
                     position=positions[car_idx] if car_idx < len(positions) else 0,
                     class_position=class_positions[car_idx] if car_idx < len(class_positions) else 0,
                     incident_count=incident_count,
                     last_lap_time=last_lap_times[car_idx] if car_idx < len(last_lap_times) else 0,
-                    best_lap_time=best_lap_times[car_idx] if car_idx < len(best_lap_times) else 0
+                    best_lap_time=best_lap_times[car_idx] if car_idx < len(best_lap_times) else 0,
+                    # Coordinate fields (player car only)
+                    lat=player_lat if is_player else 0,
+                    lon=player_lon if is_player else 0,
+                    alt=player_alt if is_player else 0,
+                    velocity_x=player_vel_x if is_player else 0,
+                    velocity_y=player_vel_y if is_player else 0,
+                    velocity_z=player_vel_z if is_player else 0,
+                    yaw=player_yaw if is_player else 0
                 )
                 cars.append(car_data)
             

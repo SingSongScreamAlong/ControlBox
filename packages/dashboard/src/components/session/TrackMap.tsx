@@ -1,142 +1,241 @@
 // =====================================================================
 // Track Map Component
-// Real-time visualization of car positions on track
+// Real-time visualization of car positions using telemetry coordinates
 // =====================================================================
 
-import { useMemo } from 'react';
+import { useMemo, useCallback, useEffect, useState } from 'react';
 import { useSessionStore } from '../../stores/session.store';
 import './TrackMap.css';
 
-// Pre-defined track SVG paths for common tracks
-// These are simplified representations - real tracks would use actual GPS data
-const TRACK_PATHS: Record<string, { path: string; length: number; corners: { at: number; name: string }[] }> = {
-    // Oval tracks - simple ellipse
-    'daytona': {
-        path: 'M 200,50 C 350,50 350,200 200,200 C 50,200 50,50 200,50 Z',
-        length: 4000,
-        corners: [
-            { at: 0.00, name: 'Start/Finish' },
-            { at: 0.25, name: 'Turn 1' },
-            { at: 0.50, name: 'Backstretch' },
-            { at: 0.75, name: 'Turn 3' }
-        ]
-    },
-    'talladega': {
-        path: 'M 200,30 C 380,30 380,220 200,220 C 20,220 20,30 200,30 Z',
-        length: 4280,
-        corners: [
-            { at: 0.00, name: 'Start/Finish' },
-            { at: 0.25, name: 'Turn 1' },
-            { at: 0.50, name: 'Backstretch' },
-            { at: 0.75, name: 'Turn 3' }
-        ]
-    },
-    // Road courses - more complex paths
-    'spa': {
-        path: 'M 50,200 L 100,180 L 180,120 L 200,80 L 150,50 L 100,60 L 80,100 L 120,140 L 200,130 L 280,100 L 350,80 L 370,120 L 350,180 L 280,200 L 200,220 L 100,210 Z',
-        length: 7004,
-        corners: [
-            { at: 0.00, name: 'La Source' },
-            { at: 0.15, name: 'Eau Rouge' },
-            { at: 0.25, name: 'Raidillon' },
-            { at: 0.40, name: 'Les Combes' },
-            { at: 0.55, name: 'Stavelot' },
-            { at: 0.70, name: 'Blanchimont' },
-            { at: 0.85, name: 'Bus Stop' }
-        ]
-    },
-    'nurburgring': {
-        path: 'M 60,180 L 120,150 L 180,120 L 220,80 L 280,60 L 340,80 L 360,140 L 340,200 L 280,220 L 200,210 L 120,200 Z',
-        length: 5148,
-        corners: [
-            { at: 0.00, name: 'Turn 1' },
-            { at: 0.20, name: 'Mercedes Arena' },
-            { at: 0.40, name: 'Veedol-Schikane' },
-            { at: 0.60, name: 'Coca-Cola Kurve' },
-            { at: 0.80, name: 'Schumacher-S' }
-        ]
-    },
-    // Default generic track
-    'default': {
-        path: 'M 100,200 L 150,100 L 250,80 L 350,100 L 350,180 L 280,200 L 200,180 L 150,200 Z',
-        length: 3500,
-        corners: [
-            { at: 0.00, name: 'Start' },
-            { at: 0.33, name: 'T1' },
-            { at: 0.66, name: 'T2' }
-        ]
-    }
-};
+// Types for track shape
+interface TrackPoint {
+    x: number;
+    y: number;
+    distPct: number;
+}
+
+interface TrackBounds {
+    xMin: number;
+    xMax: number;
+    yMin: number;
+    yMax: number;
+}
 
 interface TrackMapProps {
     /** Show corner markers */
     showCorners?: boolean;
-    /** Show sector zones */
-    showSectors?: boolean;
     /** Highlight incident zones */
     incidentZones?: { lapDistPct: number; severity: 'light' | 'medium' | 'heavy' }[];
-    /** Show flag status on map */
-    showFlags?: boolean;
+    /** Track width in meters (default: 12) */
+    trackWidth?: number;
     /** Custom width */
     width?: number;
     /** Custom height */
     height?: number;
 }
 
+/**
+ * Builds track centerline from timing entry positions
+ * This is a simplified version - in production, would use actual telemetry coordinates
+ */
+function buildTrackFromDistPct(): TrackPoint[] {
+    // For now, we'll simulate a track shape based on common track layouts
+    // In production, this would be built from first lap telemetry X/Y coords
+    const points: TrackPoint[] = [];
+    const numPoints = 200;
+
+    // Create an oval-ish track with some character
+    for (let i = 0; i < numPoints; i++) {
+        const pct = i / numPoints;
+        const angle = pct * Math.PI * 2;
+
+        // Add some asymmetry/character to make it look like a real track
+        // Using a mix of oval and road course characteristics
+        const radiusX = 150 + Math.sin(angle * 3) * 20;
+        const radiusY = 100 + Math.cos(angle * 2) * 15;
+
+        points.push({
+            x: 200 + Math.cos(angle) * radiusX,
+            y: 125 + Math.sin(angle) * radiusY,
+            distPct: pct
+        });
+    }
+
+    return points;
+}
+
+/**
+ * Calculate bounding box from track points
+ */
+function calculateBounds(points: TrackPoint[]): TrackBounds {
+    if (points.length === 0) {
+        return { xMin: 0, xMax: 400, yMin: 0, yMax: 250 };
+    }
+
+    let xMin = Infinity, xMax = -Infinity;
+    let yMin = Infinity, yMax = -Infinity;
+
+    for (const pt of points) {
+        xMin = Math.min(xMin, pt.x);
+        xMax = Math.max(xMax, pt.x);
+        yMin = Math.min(yMin, pt.y);
+        yMax = Math.max(yMax, pt.y);
+    }
+
+    return { xMin, xMax, yMin, yMax };
+}
+
+/**
+ * Interpolate position along track points
+ */
+function getPositionOnTrack(points: TrackPoint[], distPct: number): { x: number; y: number } {
+    if (points.length === 0) return { x: 200, y: 125 };
+
+    const normalizedPct = ((distPct % 1) + 1) % 1; // Ensure 0-1 range
+    const targetIdx = normalizedPct * (points.length - 1);
+    const idx1 = Math.floor(targetIdx);
+    const idx2 = Math.min(idx1 + 1, points.length - 1);
+    const t = targetIdx - idx1;
+
+    const p1 = points[idx1];
+    const p2 = points[idx2];
+
+    return {
+        x: p1.x + (p2.x - p1.x) * t,
+        y: p1.y + (p2.y - p1.y) * t
+    };
+}
+
+/**
+ * Generate inner/outer track edges by offsetting centerline
+ */
+function generateTrackEdges(centerline: TrackPoint[], widthPx: number): { inner: string; outer: string } {
+    if (centerline.length < 3) {
+        return { inner: '', outer: '' };
+    }
+
+    const innerPoints: { x: number; y: number }[] = [];
+    const outerPoints: { x: number; y: number }[] = [];
+    const halfWidth = widthPx / 2;
+
+    for (let i = 0; i < centerline.length; i++) {
+        const curr = centerline[i];
+        const prev = centerline[(i - 1 + centerline.length) % centerline.length];
+        const next = centerline[(i + 1) % centerline.length];
+
+        // Calculate tangent direction
+        const dx = next.x - prev.x;
+        const dy = next.y - prev.y;
+        const len = Math.sqrt(dx * dx + dy * dy) || 1;
+
+        // Perpendicular (normal) direction
+        const nx = -dy / len;
+        const ny = dx / len;
+
+        innerPoints.push({
+            x: curr.x + nx * halfWidth,
+            y: curr.y + ny * halfWidth
+        });
+        outerPoints.push({
+            x: curr.x - nx * halfWidth,
+            y: curr.y - ny * halfWidth
+        });
+    }
+
+    // Convert to SVG path strings
+    const toPath = (pts: { x: number; y: number }[]) => {
+        if (pts.length === 0) return '';
+        return `M ${pts[0].x},${pts[0].y} ` +
+            pts.slice(1).map(p => `L ${p.x},${p.y}`).join(' ') +
+            ' Z';
+    };
+
+    return {
+        inner: toPath(innerPoints),
+        outer: toPath(outerPoints)
+    };
+}
+
 export function TrackMap({
     showCorners = true,
-    showSectors: _showSectors = true,
     incidentZones = [],
-    showFlags: _showFlags = true,
+    trackWidth = 12,
     width = 400,
     height = 250
 }: TrackMapProps) {
     const { currentSession, timing } = useSessionStore();
+    const [trackPoints, setTrackPoints] = useState<TrackPoint[]>([]);
 
-    // Get track path based on track name
-    const trackConfig = useMemo(() => {
-        if (!currentSession?.trackName) return TRACK_PATHS.default;
-
-        const trackKey = currentSession.trackName.toLowerCase().replace(/\s+/g, '');
-        for (const [key, config] of Object.entries(TRACK_PATHS)) {
-            if (trackKey.includes(key)) return config;
-        }
-        return TRACK_PATHS.default;
+    // Build track shape (would use real telemetry in production)
+    useEffect(() => {
+        const points = buildTrackFromDistPct();
+        setTrackPoints(points);
     }, [currentSession?.trackName]);
 
-    // Calculate car positions along the track path
+    // Calculate track bounds
+    const bounds = useMemo(() => calculateBounds(trackPoints), [trackPoints]);
+
+    // World to screen transform
+    const worldToScreen = useCallback((x: number, y: number) => {
+        const padding = 20;
+        const scaleX = (width - padding * 2) / ((bounds.xMax - bounds.xMin) || 1);
+        const scaleY = (height - padding * 2) / ((bounds.yMax - bounds.yMin) || 1);
+        const scale = Math.min(scaleX, scaleY);
+
+        const offsetX = (width - (bounds.xMax - bounds.xMin) * scale) / 2;
+        const offsetY = (height - (bounds.yMax - bounds.yMin) * scale) / 2;
+
+        return {
+            x: (x - bounds.xMin) * scale + offsetX,
+            y: height - ((y - bounds.yMin) * scale + offsetY) // Flip Y
+        };
+    }, [bounds, width, height]);
+
+    // Generate track edges
+    const trackEdges = useMemo(() => {
+        if (trackPoints.length < 3) return { inner: '', outer: '' };
+
+        // Convert track width to screen pixels
+        const scale = Math.min(
+            (width - 40) / ((bounds.xMax - bounds.xMin) || 1),
+            (height - 40) / ((bounds.yMax - bounds.yMin) || 1)
+        );
+        const widthPx = trackWidth * scale * 0.3; // Scale down for visibility
+
+        // Transform points to screen space first
+        const screenPoints = trackPoints.map(pt => {
+            const screen = worldToScreen(pt.x, pt.y);
+            return { x: screen.x, y: screen.y, distPct: pt.distPct };
+        });
+
+        return generateTrackEdges(screenPoints, widthPx);
+    }, [trackPoints, bounds, width, height, trackWidth, worldToScreen]);
+
+    // Calculate car positions
     const carPositions = useMemo(() => {
         return timing.map((entry, idx) => {
-            // Use lap progress if available, otherwise estimate from position
-            const progress = ((entry as any).lapProgress ?? (entry.lapsCompleted % 1)) || (idx * 0.05);
-
-            // Get position along path (0.0 to 1.0)
-            const pos = progress % 1;
-
-            // Calculate x,y position on SVG path
-            // For simplicity, we'll use the path approximation
-            const bounds = { x1: 50, y1: 30, x2: 370, y2: 220 };
-            const angle = pos * Math.PI * 2;
-            const x = bounds.x1 + ((bounds.x2 - bounds.x1) / 2) + Math.cos(angle - Math.PI / 2) * ((bounds.x2 - bounds.x1) / 2 - 20);
-            const y = bounds.y1 + ((bounds.y2 - bounds.y1) / 2) + Math.sin(angle - Math.PI / 2) * ((bounds.y2 - bounds.y1) / 2 - 20);
+            // Use lap progress to determine position on track
+            const lapProgress = ((entry as any).lapProgress ?? (entry.lapsCompleted % 1)) || (idx * 0.05);
+            const pos = getPositionOnTrack(trackPoints, lapProgress);
+            const screenPos = worldToScreen(pos.x, pos.y);
 
             return {
                 ...entry,
-                x,
-                y,
-                progress: pos,
+                screenX: screenPos.x,
+                screenY: screenPos.y,
+                progress: lapProgress,
                 isLeader: idx === 0,
-                inPit: entry.inPit
+                inPit: (entry as any).inPit || false
             };
         });
-    }, [timing]);
+    }, [timing, trackPoints, worldToScreen]);
 
-    // Determine helmet colors by position
+    // Determine car colors
     const getCarColor = (position: number, inPit: boolean) => {
-        if (inPit) return '#6b7280'; // Gray for pit
-        if (position === 1) return '#fbbf24'; // Gold for leader
-        if (position <= 3) return '#3b82f6'; // Blue for podium
-        return '#ffffff'; // White for others
+        if (inPit) return '#6b7280';
+        if (position === 1) return '#fbbf24';
+        if (position <= 3) return '#3b82f6';
+        return '#ffffff';
     };
 
     return (
@@ -146,59 +245,74 @@ export function TrackMap({
                 <span className="track-map__name">{currentSession?.trackName || 'Unknown Track'}</span>
             </div>
 
-            <svg viewBox="0 0 400 250" className="track-map__svg">
-                {/* Track surface background */}
-                <path
-                    d={trackConfig.path}
-                    className="track-surface"
-                    strokeWidth="16"
-                    fill="none"
-                />
+            <svg viewBox={`0 0 ${width} ${height}`} className="track-map__svg">
+                {/* Track surface (outer edge) */}
+                {trackEdges.outer && (
+                    <path
+                        d={trackEdges.outer}
+                        className="track-surface-outer"
+                        fill="#334155"
+                        stroke="none"
+                    />
+                )}
 
-                {/* Track line (white dashed center) */}
-                <path
-                    d={trackConfig.path}
-                    className="track-line"
-                    strokeWidth="2"
-                    strokeDasharray="4,4"
-                    fill="none"
-                />
+                {/* Track surface (inner edge - cutout for infield) */}
+                {trackEdges.inner && (
+                    <path
+                        d={trackEdges.inner}
+                        className="track-surface-inner"
+                        fill="#1e293b"
+                        stroke="none"
+                    />
+                )}
+
+                {/* Track centerline */}
+                {trackPoints.length > 2 && (
+                    <path
+                        d={`M ${trackPoints.map(pt => {
+                            const sp = worldToScreen(pt.x, pt.y);
+                            return `${sp.x},${sp.y}`;
+                        }).join(' L ')} Z`}
+                        stroke="rgba(255,255,255,0.15)"
+                        strokeWidth="1"
+                        strokeDasharray="4,4"
+                        fill="none"
+                    />
+                )}
 
                 {/* Incident zones */}
                 {incidentZones.map((zone, idx) => {
-                    const angle = zone.lapDistPct * Math.PI * 2;
-                    const x = 200 + Math.cos(angle - Math.PI / 2) * 120;
-                    const y = 125 + Math.sin(angle - Math.PI / 2) * 75;
+                    const pos = getPositionOnTrack(trackPoints, zone.lapDistPct);
+                    const screenPos = worldToScreen(pos.x, pos.y);
                     const color = zone.severity === 'heavy' ? '#ef4444' :
                         zone.severity === 'medium' ? '#f97316' : '#fbbf24';
                     return (
                         <circle
                             key={idx}
-                            cx={x}
-                            cy={y}
-                            r="15"
+                            cx={screenPos.x}
+                            cy={screenPos.y}
+                            r="12"
                             fill={color}
-                            opacity="0.3"
+                            opacity="0.4"
                             className="incident-zone pulse"
                         />
                     );
                 })}
 
                 {/* Corner markers */}
-                {showCorners && trackConfig.corners.map((corner, idx) => {
-                    const angle = corner.at * Math.PI * 2;
-                    const x = 200 + Math.cos(angle - Math.PI / 2) * 140;
-                    const y = 125 + Math.sin(angle - Math.PI / 2) * 90;
+                {showCorners && [0, 0.25, 0.5, 0.75].map((pct, idx) => {
+                    const pos = getPositionOnTrack(trackPoints, pct);
+                    const screenPos = worldToScreen(pos.x, pos.y);
                     return (
                         <g key={idx} className="corner-marker">
-                            <circle cx={x} cy={y} r="4" fill="#475569" />
+                            <circle cx={screenPos.x} cy={screenPos.y} r="3" fill="#475569" />
                             <text
-                                x={x}
-                                y={y - 8}
+                                x={screenPos.x}
+                                y={screenPos.y - 6}
                                 className="corner-label"
                                 textAnchor="middle"
                             >
-                                {corner.name}
+                                {pct === 0 ? 'S/F' : `T${idx}`}
                             </text>
                         </g>
                     );
@@ -207,20 +321,18 @@ export function TrackMap({
                 {/* Car positions */}
                 {carPositions.map((car, idx) => (
                     <g key={car.driverId} className="car-marker">
-                        {/* Car dot */}
                         <circle
-                            cx={car.x}
-                            cy={car.y}
-                            r={car.isLeader ? 6 : 4}
+                            cx={car.screenX}
+                            cy={car.screenY}
+                            r={car.isLeader ? 5 : 3.5}
                             fill={getCarColor(idx + 1, car.inPit)}
                             stroke="#000"
-                            strokeWidth="1"
+                            strokeWidth="0.5"
                         />
-                        {/* Car number (for top 3 only) */}
                         {idx < 3 && (
                             <text
-                                x={car.x}
-                                y={car.y + 12}
+                                x={car.screenX}
+                                y={car.screenY + 10}
                                 className="car-number"
                                 textAnchor="middle"
                             >
@@ -231,14 +343,20 @@ export function TrackMap({
                 ))}
 
                 {/* Start/Finish line */}
-                <line
-                    x1="100"
-                    y1="193"
-                    x2="100"
-                    y2="207"
-                    stroke="#fff"
-                    strokeWidth="3"
-                />
+                {trackPoints.length > 0 && (() => {
+                    const sf = getPositionOnTrack(trackPoints, 0);
+                    const screenSf = worldToScreen(sf.x, sf.y);
+                    return (
+                        <line
+                            x1={screenSf.x - 5}
+                            y1={screenSf.y}
+                            x2={screenSf.x + 5}
+                            y2={screenSf.y}
+                            stroke="#fff"
+                            strokeWidth="2"
+                        />
+                    );
+                })()}
             </svg>
 
             {/* Legend */}

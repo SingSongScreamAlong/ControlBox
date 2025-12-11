@@ -23,6 +23,7 @@ export * from './types/protest.js';
 export * from './types/voting.js';
 export * from './types/team.js';
 export * from './types/audit.js';
+export * from './types/trackShape.js';
 
 // Constants
 export * from './constants/incident-codes.js';
