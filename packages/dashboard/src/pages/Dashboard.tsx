@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useSessionStore } from '../stores/session.store';
 import { useIncidentStore } from '../stores/incident.store';
+import { TrackMap } from '../components/session/TrackMap';
 
 export function Dashboard() {
     const { currentSession, connectionStatus, connect } = useSessionStore();
@@ -130,6 +131,19 @@ export function Dashboard() {
                         )}
                     </div>
                 </div>
+
+                {/* Track Map - show when session active */}
+                {currentSession && (
+                    <div className="card">
+                        <TrackMap
+                            showCorners={true}
+                            incidentZones={incidents.slice(0, 5).map(i => ({
+                                lapDistPct: (i.lapNumber || 0) % 100 / 100,
+                                severity: i.severity as 'light' | 'medium' | 'heavy'
+                            }))}
+                        />
+                    </div>
+                )}
 
                 {/* Quick Links */}
                 <div className="card">

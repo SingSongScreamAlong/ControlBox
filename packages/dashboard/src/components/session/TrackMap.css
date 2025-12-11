@@ -1,0 +1,159 @@
+/* =====================================================================
+   Track Map Styles
+   Visualization for real-time car positions
+   ===================================================================== */
+
+.track-map {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 0.75rem;
+    border: 1px solid rgba(71, 85, 105, 0.5);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.track-map__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.track-map__header h3 {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+}
+
+.track-map__name {
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+.track-map__svg {
+    flex: 1;
+    width: 100%;
+    min-height: 150px;
+}
+
+/* Track surface */
+.track-surface {
+    stroke: #334155;
+}
+
+.track-line {
+    stroke: rgba(255, 255, 255, 0.3);
+}
+
+/* Corner markers */
+.corner-marker {
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.corner-marker:hover {
+    opacity: 1;
+}
+
+.corner-label {
+    font-size: 8px;
+    fill: #94a3b8;
+    font-family: system-ui, sans-serif;
+}
+
+/* Car markers */
+.car-marker {
+    transition: transform 0.3s ease-out;
+}
+
+.car-number {
+    font-size: 7px;
+    fill: #fff;
+    font-weight: 600;
+    font-family: system-ui, sans-serif;
+}
+
+/* Incident zones */
+.incident-zone {
+    animation: pulse-glow 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        opacity: 0.3;
+        r: 15;
+    }
+
+    50% {
+        opacity: 0.6;
+        r: 20;
+    }
+}
+
+/* Legend */
+.track-map__legend {
+    display: flex;
+    gap: 1rem;
+    padding: 0.5rem 1rem;
+    border-top: 1px solid rgba(71, 85, 105, 0.3);
+    font-size: 0.625rem;
+    color: #94a3b8;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.legend-item .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.legend-item .dot.gold {
+    background: #fbbf24;
+}
+
+.legend-item .dot.blue {
+    background: #3b82f6;
+}
+
+.legend-item .dot.gray {
+    background: #6b7280;
+}
+
+/* Flag indicators */
+.track-map--yellow {
+    border-color: rgba(251, 191, 36, 0.5);
+}
+
+.track-map--red {
+    border-color: rgba(239, 68, 68, 0.5);
+}
+
+.track-map--sc {
+    background: linear-gradient(180deg, #1e293b 0%, #422006 100%);
+}
+
+/* Mini variant */
+.track-map--mini {
+    height: 120px;
+}
+
+.track-map--mini .track-map__header {
+    padding: 0.5rem;
+}
+
+.track-map--mini .track-map__legend {
+    display: none;
+}
+
+.track-map--mini .corner-label {
+    display: none;
+}
