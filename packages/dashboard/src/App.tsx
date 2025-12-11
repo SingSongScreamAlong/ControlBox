@@ -13,6 +13,7 @@ import { EventDetailPage } from './pages/EventDetailPage';
 import { DiscordSettingsPage } from './pages/DiscordSettingsPage';
 import ProtestsPage from './pages/ProtestsPage';
 import AuditLogPage from './pages/AuditLogPage';
+import TeamsPage from './pages/TeamsPage';
 
 export function App() {
     return (
@@ -35,8 +36,12 @@ export function App() {
                         <Route path="reports" element={<ReportsPage />} />
 
                         {/* Events */}
+                        <Route path="events" element={<EventsPage />} />
                         <Route path="seasons/:seasonId/events" element={<EventsPage />} />
                         <Route path="events/:eventId" element={<EventDetailPage />} />
+
+                        {/* Teams */}
+                        <Route path="teams" element={<TeamsPage />} />
 
                         {/* Discord Settings */}
                         <Route path="leagues/:leagueId/discord" element={<DiscordSettingsPage />} />

@@ -183,8 +183,8 @@ export function EventDetailPage() {
                         {/* Report Status */}
                         <div className="flex items-center gap-2">
                             <span className={`w-2 h-2 rounded-full ${currentEvent.report.status === 'ready' ? 'bg-green-500' :
-                                    currentEvent.report.status === 'processing' ? 'bg-yellow-500 animate-pulse' :
-                                        currentEvent.report.status === 'failed' ? 'bg-red-500' : 'bg-slate-500'
+                                currentEvent.report.status === 'processing' ? 'bg-yellow-500 animate-pulse' :
+                                    currentEvent.report.status === 'failed' ? 'bg-red-500' : 'bg-slate-500'
                                 }`} />
                             <span className="text-slate-300 capitalize">{currentEvent.report.status}</span>
                         </div>
@@ -242,6 +242,14 @@ export function EventDetailPage() {
 
                                 {/* Export Buttons */}
                                 <div className="flex gap-2 pt-4">
+                                    <a
+                                        href={`${import.meta.env.VITE_API_URL}/api/export/bulletin/${eventId}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm"
+                                    >
+                                        📄 Download PDF Bulletin
+                                    </a>
                                     <a
                                         href={`/api/events/${eventId}/report/export`}
                                         target="_blank"

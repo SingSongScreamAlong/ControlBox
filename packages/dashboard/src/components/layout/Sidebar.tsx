@@ -6,6 +6,8 @@ const navItems = [
     { to: '/protests', label: 'Protests', icon: '📋' },
     { to: '/rulebooks', label: 'Rulebooks', icon: '📖' },
     { to: '/reports', label: 'Reports', icon: '📊' },
+    { to: '/events', label: 'Events', icon: '🏁' },
+    { to: '/teams', label: 'Teams', icon: '👥' },
     { to: '/audit', label: 'Audit Log', icon: '📜' },
 ];
 
