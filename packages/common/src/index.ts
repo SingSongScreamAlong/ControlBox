@@ -19,6 +19,10 @@ export * from './types/discord.js';
 export * from './types/scoring.js';
 export * from './types/rulebook-ai.js';
 export * from './types/advisor.js';
+export * from './types/protest.js';
+export * from './types/voting.js';
+export * from './types/team.js';
+export * from './types/audit.js';
 
 // Constants
 export * from './constants/incident-codes.js';

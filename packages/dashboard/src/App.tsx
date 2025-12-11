@@ -11,6 +11,8 @@ import { LoginPage } from './pages/LoginPage';
 import { EventsPage } from './pages/EventsPage';
 import { EventDetailPage } from './pages/EventDetailPage';
 import { DiscordSettingsPage } from './pages/DiscordSettingsPage';
+import ProtestsPage from './pages/ProtestsPage';
+import AuditLogPage from './pages/AuditLogPage';
 
 export function App() {
     return (
@@ -38,6 +40,12 @@ export function App() {
 
                         {/* Discord Settings */}
                         <Route path="leagues/:leagueId/discord" element={<DiscordSettingsPage />} />
+
+                        {/* Protests & Appeals (P0 Core) */}
+                        <Route path="protests" element={<ProtestsPage />} />
+
+                        {/* Audit Log (P0 Core) */}
+                        <Route path="audit" element={<AuditLogPage />} />
                     </Route>
                 </Routes>
             </BrowserRouter>

@@ -86,8 +86,20 @@ apiRouter.use('/ai', aiRouter);
 import rulebookAiRouter from './rulebook-ai.js';
 apiRouter.use('/rulebooks', rulebookAiRouter);
 
+// Protests & Appeals (P0 Core)
+import protestsRouter from './protests.js';
+apiRouter.use('/protests', protestsRouter);
 
+// Steward Voting Panels (P0 Core)
+import panelsRouter from './panels.js';
+apiRouter.use('/panels', panelsRouter);
 
+// Teams (minimal scaffolding)
+import teamsRouter from './teams.js';
+apiRouter.use('/teams', teamsRouter);
 
+// Audit Log (P0 Core)
+import auditRouter from './audit.js';
+apiRouter.use('/audit', auditRouter);
 
 
