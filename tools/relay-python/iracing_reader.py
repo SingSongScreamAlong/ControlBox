@@ -291,6 +291,15 @@ class IRacingReader:
         except:
             return 0
     
+    def get_current_session_time(self) -> float:
+        """Get total session time elapsed (seconds)"""
+        if not self.is_connected():
+            return 0
+        try:
+            return self.ir['SessionTime'] or 0
+        except:
+            return 0
+
     def get_leader_lap(self) -> int:
         """Get current lap of race leader"""
         if not self.is_connected():
@@ -317,9 +326,15 @@ class IRacingReader:
                 if car.incident_count > prev_count:
                     # Incident detected!
                     incidents.append({
-                        'cars': [car.car_id],
-                        'car_names': [car.car_name],
-                        'driver_names': [car.driver_name],
+                        'involved_cars': [{
+                            'carId': car.car_id,
+                            'driverId': car.driver_id,
+                            'driverName': car.driver_name,
+                            'carNumber': car.car_number,
+                            'teamName': car.team_name,
+                            'role': 'involved'
+                        }],
+                        'sessionTime': self.get_current_session_time(),
                         'lap': car.lap,
                         'track_position': car.track_pct,
                         'severity': 'med',  # Default severity

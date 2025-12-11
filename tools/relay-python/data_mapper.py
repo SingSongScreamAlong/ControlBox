@@ -112,9 +112,10 @@ def map_incident(
         'type': 'incident',
         'sessionId': session_id,
         'timestamp': int(time.time() * 1000),
-        'cars': incident_data.get('cars', []),
-        'carNames': incident_data.get('car_names', []),
-        'driverNames': incident_data.get('driver_names', []),
+        'sessionTime': incident_data.get('sessionTime', 0),
+        'involvedCars': incident_data.get('involved_cars', []),
+        'cars': incident_data.get('cars', []),  # Keep for backward compat
+        'driverNames': incident_data.get('driver_names', []), # Keep for backward compat
         'lap': incident_data.get('lap', 0),
         'corner': _estimate_corner(incident_data.get('track_position', 0)),
         'cornerName': f"Turn {_estimate_corner(incident_data.get('track_position', 0))}",

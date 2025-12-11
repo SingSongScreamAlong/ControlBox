@@ -191,15 +191,36 @@ export function initializeWebSocket(httpServer: HttpServer): Server {
         socket.on('incident', (data: {
             sessionId: string;
             type: string;
-            driverId: string;
+            involvedCars?: Array<{
+                driverId: string;
+                driverName: string;
+                carNumber: string;
+                role?: 'involved' | 'aggressor' | 'victim';
+            }>;
+            sessionTime?: number;
+            // Legacy fields fallback
+            driverId?: string;
             driverName?: string;
             carNumber?: string;
             lapNumber?: number;
             trackPosition?: number;
             severity?: string;
-            incidentCount?: number;
         }) => {
-            console.log(`🚨 Incident received: ${data.type} - ${data.driverName || data.driverId}`);
+            const primaryDriver = data.involvedCars?.[0]?.driverName || data.driverName || data.driverId || 'Unknown';
+            console.log(`🚨 Incident received: ${data.type} - ${primaryDriver}`);
+
+            // Map drivers
+            const involvedDrivers = data.involvedCars?.map(car => ({
+                driverId: car.driverId,
+                driverName: car.driverName,
+                carNumber: car.carNumber,
+                role: car.role || 'involved'
+            })) || [{
+                driverId: data.driverId || 'unknown',
+                driverName: data.driverName || 'Unknown',
+                carNumber: data.carNumber || '??',
+                role: 'involved'
+            }];
 
             // Broadcast to dashboard
             io.to(`session:${data.sessionId}`).emit('incident:new', {
@@ -209,14 +230,10 @@ export function initializeWebSocket(httpServer: HttpServer): Server {
                     type: data.type,
                     severity: data.severity ?? 'medium',
                     lapNumber: data.lapNumber ?? 0,
-                    sessionTimeMs: Date.now(),
+                    // Convert sessionTime (secs) to ms, or fallback to now
+                    sessionTimeMs: data.sessionTime ? Math.round(data.sessionTime * 1000) : Date.now(),
                     trackPosition: data.trackPosition ?? 0,
-                    involvedDrivers: [{
-                        driverId: data.driverId,
-                        driverName: data.driverName ?? 'Unknown',
-                        carNumber: data.carNumber ?? '??',
-                        role: 'involved'
-                    }],
+                    involvedDrivers,
                     status: 'pending'
                 }
             });
