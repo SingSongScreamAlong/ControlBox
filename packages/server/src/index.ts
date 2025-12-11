@@ -7,6 +7,7 @@ import { createServer } from 'http';
 import { app } from './app.js';
 import { initializeWebSocket } from './websocket/index.js';
 import { initializeDatabase } from './db/client.js';
+import { runMigrations, seedAdminUser } from './db/migrations.js';
 import { config } from './config/index.js';
 
 async function main() {
@@ -18,8 +19,16 @@ async function main() {
     try {
         await initializeDatabase();
         console.log('✅ Database connected');
+
+        // Run migrations
+        console.log('📦 Running migrations...');
+        await runMigrations();
+        console.log('✅ Migrations complete');
+
+        // Seed default admin if needed
+        await seedAdminUser();
     } catch (error) {
-        console.error('❌ Database connection failed:', error);
+        console.error('❌ Database setup failed:', error);
         process.exit(1);
     }
 
