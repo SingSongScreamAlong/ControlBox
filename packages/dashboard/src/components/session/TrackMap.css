@@ -157,3 +157,57 @@
 .track-map--mini .corner-label {
     display: none;
 }
+
+/* Sector markers */
+.sector-marker {
+    opacity: 0.7;
+}
+
+.sector-label {
+    font-size: 8px;
+    font-weight: 600;
+    font-family: system-ui, sans-serif;
+}
+
+/* Pit markers */
+.pit-marker {
+    opacity: 0.9;
+}
+
+.pit-label {
+    font-size: 7px;
+    font-weight: 600;
+    font-family: system-ui, sans-serif;
+}
+
+/* Corner hover state */
+.corner-marker.hovered circle {
+    filter: drop-shadow(0 0 4px #3b82f6);
+}
+
+/* Turn info tooltip */
+.track-map__turn-info {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.625rem;
+    color: #fff;
+    display: flex;
+    gap: 0.25rem;
+    white-space: nowrap;
+}
+
+.track-map__turn-info strong {
+    color: #3b82f6;
+}
+
+/* Track count in legend */
+.legend-item.track-count {
+    margin-left: auto;
+    color: #64748b;
+    font-style: italic;
+}
