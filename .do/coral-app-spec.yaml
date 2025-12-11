@@ -35,6 +35,9 @@ services:
     value: "0"
   - key: HOST
     value: "0.0.0.0"
+  - key: OPENAI_API_KEY
+    value: your-openai-api-key-here
+    type: SECRET
 - name: dashboard
   dockerfile_path: Dockerfile.dashboard
   github:
