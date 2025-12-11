@@ -8,6 +8,7 @@ import { useIncidentStore } from '../stores/incident.store';
 import { useSessionStore } from '../stores/session.store';
 import { IncidentDetail } from '../components/incidents/IncidentDetail';
 import { formatSessionTime, formatIncidentType, formatSeverity } from '@controlbox/common';
+import { getTrackData, getCurrentTurn } from '../data/trackDataService';
 import type { IncidentEvent } from '@controlbox/common';
 
 export function IncidentsPage() {
@@ -138,6 +139,7 @@ export function IncidentsPage() {
                             <tr className="text-left text-slate-400 text-xs uppercase tracking-wider border-b border-slate-700/50">
                                 <th className="px-4 py-3">Time</th>
                                 <th className="px-4 py-3">Lap</th>
+                                <th className="px-4 py-3">Location</th>
                                 <th className="px-4 py-3">Type</th>
                                 <th className="px-4 py-3">Drivers</th>
                                 <th className="px-4 py-3">Severity</th>
@@ -148,7 +150,7 @@ export function IncidentsPage() {
                         <tbody>
                             {sortedIncidents.length === 0 ? (
                                 <tr>
-                                    <td colSpan={7} className="text-center py-12 text-slate-400">
+                                    <td colSpan={8} className="text-center py-12 text-slate-400">
                                         {incidents.length === 0
                                             ? 'No incidents found'
                                             : 'No incidents match the current filters'}
@@ -199,6 +201,27 @@ function StatBlock({ label, value, color }: { label: string; value: number; colo
 }
 
 function IncidentRow({ incident, onSelect }: { incident: IncidentEvent; onSelect: () => void }) {
+    const { currentSession } = useSessionStore();
+
+    // Try to get corner name from track data
+    const getLocationDisplay = () => {
+        // Use cornerName if already set
+        if (incident.cornerName) return incident.cornerName;
+
+        // Try to look up from track data
+        const trackId = currentSession?.trackName?.toLowerCase().replace(/\s+/g, '-') || '';
+        const trackData = getTrackData(trackId);
+        if (trackData && incident.trackPosition !== undefined) {
+            const turn = getCurrentTurn(trackData, incident.trackPosition);
+            if (turn) return turn.name;
+        }
+
+        // Fallback to percentage
+        return incident.trackPosition !== undefined
+            ? `${Math.round(incident.trackPosition * 100)}%`
+            : '—';
+    };
+
     const severityColors: Record<string, string> = {
         light: 'bg-amber-500/20 text-amber-400',
         medium: 'bg-orange-500/20 text-orange-400',
@@ -220,6 +243,9 @@ function IncidentRow({ incident, onSelect }: { incident: IncidentEvent; onSelect
             </td>
             <td className="px-4 py-3 text-white">
                 {incident.lapNumber}
+            </td>
+            <td className="px-4 py-3 text-primary-400 font-medium">
+                {getLocationDisplay()}
             </td>
             <td className="px-4 py-3 text-slate-300">
                 {formatIncidentType(incident.type)}
