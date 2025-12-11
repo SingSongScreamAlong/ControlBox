@@ -90,7 +90,7 @@ export const AdvisorPanel: React.FC<AdvisorPanelProps> = ({
         <div className="advisor-panel">
             <div className="advisor-panel__header">
                 <h3>
-                    🤖 Steward Advisor
+                    Steward Advisor
                     {hasWarnings(incidentId) && <span className="advisor-panel__warning-badge">⚠️</span>}
                 </h3>
                 {onClose && <button className="advisor-panel__close" onClick={onClose}>×</button>}

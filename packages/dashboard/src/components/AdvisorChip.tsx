@@ -111,7 +111,7 @@ export const AdvisorChip: React.FC<AdvisorChipProps> = ({
 
         return (
             <>
-                <span>🤖</span>
+                <span>✓</span>
                 <span>{advice.length}</span>
             </>
         );

@@ -180,7 +180,7 @@ function PenaltyItem({ penalty, isPending, onShowAdvisor, showingAdvisor }: Pena
                                     }`}
                                 title="Get Advisor Recommendations"
                             >
-                                🤖
+                                📋
                             </button>
                         )}
                         <button

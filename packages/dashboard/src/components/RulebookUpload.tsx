@@ -177,8 +177,7 @@ export const RulebookUpload: React.FC<RulebookUploadProps> = ({
                         </>
                     ) : (
                         <>
-                            <span>🤖</span>
-                            Interpret with GPT-5
+                            Analyze
                         </>
                     )}
                 </button>

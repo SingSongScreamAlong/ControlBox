@@ -105,7 +105,6 @@ export function IncidentDetail({ incident, onClose, onAction, onAddNote }: Incid
                                 onClick={() => setShowAdvisor(true)}
                                 className="w-full py-3 px-4 bg-gradient-to-r from-blue-600/20 to-purple-600/20 border border-blue-500/30 rounded-lg text-blue-300 hover:bg-blue-600/30 transition-all flex items-center justify-center gap-2"
                             >
-                                <span>🤖</span>
                                 <span>Get Steward Advisor Recommendations</span>
                             </button>
                         </div>

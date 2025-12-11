@@ -41,7 +41,7 @@ export function RecommendationPanel({ sessionId }: RecommendationPanelProps) {
         <div className="card h-full flex flex-col">
             <div className="card-header">
                 <div className="flex items-center gap-2">
-                    <span className="text-lg">🤖</span>
+                    <span className="text-lg">📋</span>
                     <h3 className="font-semibold text-white">Steward Recommendations</h3>
                 </div>
                 <span className={`badge ${pendingCount > 0 ? 'bg-amber-500/20 text-amber-400' : 'bg-slate-700 text-slate-300'}`}>
@@ -126,7 +126,7 @@ export function RecommendationPanel({ sessionId }: RecommendationPanelProps) {
                                         disabled={loading}
                                         className="px-3 py-1.5 rounded-lg bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 text-sm"
                                     >
-                                        {hasAdvice ? 'View' : '🤖 Get'} Advice
+                                        {hasAdvice ? 'View' : 'Get'} Advice
                                     </button>
                                 </div>
                             </div>
