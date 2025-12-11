@@ -80,4 +80,50 @@ router.get('/motec/:sessionId/metadata', async (req: Request, res: Response) => 
     }
 });
 
+// ========================
+// PDF Exports
+// ========================
+
+import { generateStewardBulletin, generateIncidentSummary } from '../../services/export/pdf-generator.js';
+
+/**
+ * GET /api/export/bulletin/:eventId
+ * Download steward bulletin PDF for an event
+ */
+router.get('/bulletin/:eventId', async (req: Request, res: Response) => {
+    try {
+        const { eventId } = req.params;
+        const pdfBuffer = await generateStewardBulletin(eventId);
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="steward-bulletin-${eventId.slice(0, 8)}.pdf"`);
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error('PDF generation error:', error);
+        res.status(500).json({
+            error: error instanceof Error ? error.message : 'Failed to generate PDF'
+        });
+    }
+});
+
+/**
+ * GET /api/export/incident/:incidentId
+ * Download incident summary PDF
+ */
+router.get('/incident/:incidentId', async (req: Request, res: Response) => {
+    try {
+        const { incidentId } = req.params;
+        const pdfBuffer = await generateIncidentSummary(incidentId);
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="incident-${incidentId.slice(0, 8)}.pdf"`);
+        res.send(pdfBuffer);
+    } catch (error) {
+        console.error('PDF generation error:', error);
+        res.status(500).json({
+            error: error instanceof Error ? error.message : 'Failed to generate PDF'
+        });
+    }
+});
+
 export default router;
