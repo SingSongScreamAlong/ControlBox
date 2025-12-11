@@ -3,6 +3,12 @@ region: nyc
 alerts:
 - rule: DEPLOYMENT_FAILED
 - rule: DOMAIN_FAILED
+databases:
+- name: db
+  engine: PG
+  version: "16"
+  size: db-s-dev-database
+  num_nodes: 1
 services:
 - name: controlbox
   dockerfile_path: Dockerfile.server
@@ -19,6 +25,16 @@ services:
     value: production
   - key: PORT
     value: "8080"
+  - key: JWT_SECRET
+    value: a8214cf8525c30a8b853e9b4bdcfc02291cdea24b622562dec59b22d760c352b
+    type: SECRET
+  - key: DATABASE_URL
+    scope: RUN_TIME
+    value: ${db.DATABASE_URL}?sslmode=no-verify
+  - key: NODE_TLS_REJECT_UNAUTHORIZED
+    value: "0"
+  - key: HOST
+    value: "0.0.0.0"
 - name: dashboard
   dockerfile_path: Dockerfile.dashboard
   github:
