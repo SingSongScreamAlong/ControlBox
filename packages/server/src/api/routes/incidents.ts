@@ -101,20 +101,61 @@ incidentsRouter.post('/:id/analyze', async (req: Request, res: Response): Promis
             return;
         }
 
-        // TODO: Integrate with AI analysis layer
+        // Import advisor service dynamically to avoid circular deps
+        const { stewardAdvisor } = await import('../../services/advisor/steward-advisor.js');
+
+        // Get rules from request body (client should pass applicable rules)
+        const rules = req.body.rules || [];
+        const context = req.body.context || {
+            previousIncidents: 0,
+            isRepeatOffense: false,
+            sessionType: 'race'
+        };
+
+        // Generate AI advice using StewardAdvisor
+        const advice = stewardAdvisor.generateAdvice(incident, rules, context);
+
+        // Extract primary recommendation from advice
+        const primaryAdvice = advice[0];
+        const recommendation = primaryAdvice?.alternatives?.[0]?.label?.toLowerCase().includes('apply')
+            ? 'penalize'
+            : primaryAdvice?.confidence === 'LOW'
+                ? 'investigate'
+                : 'no_action';
+
+        // Calculate confidence as numeric value
+        const confidenceMap = { 'HIGH': 0.9, 'MEDIUM': 0.7, 'LOW': 0.5 };
+        const confidence = confidenceMap[primaryAdvice?.confidence || 'LOW'] || 0.5;
+
+        // Log analysis for audit
+        console.log('[AI ANALYSIS] Analyzed incident', {
+            type: 'AI_ANALYSIS',
+            incidentId: incident.id,
+            recommendation,
+            confidence,
+            rulesApplied: primaryAdvice?.applicableRules || [],
+            timestamp: new Date(),
+        });
+
         res.json({
             success: true,
             data: {
-                recommendation: 'investigate',
-                confidence: 0.75,
-                reasoning: 'AI analysis placeholder - not yet implemented',
-                faultAttribution: {},
-                patterns: [],
-                modelId: 'placeholder',
+                recommendation,
+                confidence,
+                reasoning: primaryAdvice?.reasoning || 'Unable to generate analysis',
+                faultAttribution: incident.involvedDrivers?.reduce((acc, driver, idx) => {
+                    // Simple fault attribution based on incident data
+                    acc[driver.driverId || `driver_${idx}`] = idx === 0 ? 0.7 : 0.3;
+                    return acc;
+                }, {} as Record<string, number>) || {},
+                patterns: primaryAdvice?.flags?.map(f => f.message) || [],
+                modelId: 'steward-advisor-v1',
                 analyzedAt: new Date(),
+                advice: advice, // Include full advice for detailed view
             },
         });
-    } catch {
+    } catch (error) {
+        console.error('Failed to analyze incident:', error);
         res.status(500).json({
             success: false,
             error: { code: 'INTERNAL_ERROR', message: 'Failed to analyze incident' },

@@ -255,9 +255,50 @@ export function initializeWebSocket(httpServer: HttpServer): Server {
         });
 
         // Steward action from dashboard
-        socket.on('steward:action', (data: unknown) => {
-            console.log('   Steward action received:', data);
-            // TODO: Process steward action and broadcast result
+        socket.on('steward:action', async (data: {
+            sessionId: string;
+            incidentId: string;
+            action: 'approve' | 'reject' | 'modify';
+            penaltyType?: string;
+            penaltyValue?: number;
+            notes?: string;
+            stewardId?: string;
+        }) => {
+            console.log('⚖️ Steward action received:', data);
+
+            try {
+                // Broadcast the decision to all clients in the session
+                io.to(`session:${data.sessionId}`).emit('steward:decision', {
+                    incidentId: data.incidentId,
+                    action: data.action,
+                    penaltyType: data.penaltyType,
+                    penaltyValue: data.penaltyValue,
+                    notes: data.notes,
+                    stewardId: data.stewardId,
+                    decidedAt: new Date().toISOString()
+                });
+
+                // Log for audit trail
+                console.log('[STEWARD] Decision broadcast:', {
+                    type: 'STEWARD_DECISION',
+                    incidentId: data.incidentId,
+                    action: data.action,
+                    timestamp: new Date()
+                });
+
+                // Acknowledge back to sender
+                socket.emit('steward:action:ack', {
+                    success: true,
+                    incidentId: data.incidentId,
+                    action: data.action
+                });
+            } catch (error) {
+                console.error('[STEWARD] Error processing action:', error);
+                socket.emit('steward:action:ack', {
+                    success: false,
+                    error: 'Failed to process steward action'
+                });
+            }
         });
 
         socket.on('disconnect', () => {

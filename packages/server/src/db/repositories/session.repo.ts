@@ -26,7 +26,11 @@ export class SessionRepository {
         const offset = ((params.page || 1) - 1) * limit;
 
         const rows = await query<Record<string, unknown>>(
-            `SELECT * FROM sessions ${whereClause} ORDER BY created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex}`,
+            `SELECT s.*,
+                (SELECT COUNT(*) FROM session_drivers WHERE session_id = s.id) as driver_count,
+                (SELECT COUNT(*) FROM incidents WHERE session_id = s.id) as incident_count,
+                (SELECT COUNT(*) FROM penalties WHERE session_id = s.id) as penalty_count
+             FROM sessions s ${whereClause} ORDER BY s.created_at DESC LIMIT $${paramIndex++} OFFSET $${paramIndex}`,
             [...values, limit, offset]
         );
 
@@ -59,7 +63,11 @@ export class SessionRepository {
 
     async findById(id: string): Promise<Session | null> {
         const row = await queryOne<Record<string, unknown>>(
-            'SELECT * FROM sessions WHERE id = $1',
+            `SELECT s.*,
+                (SELECT COUNT(*) FROM session_drivers WHERE session_id = s.id) as driver_count,
+                (SELECT COUNT(*) FROM incidents WHERE session_id = s.id) as incident_count,
+                (SELECT COUNT(*) FROM penalties WHERE session_id = s.id) as penalty_count
+             FROM sessions s WHERE s.id = $1`,
             [id]
         );
 
@@ -127,9 +135,9 @@ export class SessionRepository {
             status: row.status as 'pending' | 'active' | 'paused' | 'finished' | 'abandoned',
             startedAt: row.started_at ? new Date(row.started_at as string) : undefined,
             endedAt: row.ended_at ? new Date(row.ended_at as string) : undefined,
-            driverCount: 0, // TODO: Calculate from session_drivers
-            incidentCount: 0, // TODO: Calculate from incidents
-            penaltyCount: 0, // TODO: Calculate from penalties
+            driverCount: parseInt(row.driver_count as string) || 0,
+            incidentCount: parseInt(row.incident_count as string) || 0,
+            penaltyCount: parseInt(row.penalty_count as string) || 0,
             metadata: (row.metadata as Record<string, unknown>) || {},
             createdAt: new Date(row.created_at as string),
             updatedAt: new Date(row.updated_at as string),

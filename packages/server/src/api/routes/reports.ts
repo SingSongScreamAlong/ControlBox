@@ -98,16 +98,90 @@ reportsRouter.get('/:id/report', async (req: Request, res: Response): Promise<vo
 reportsRouter.post('/:id/report/export', async (req: Request, res: Response): Promise<void> => {
     try {
         const data: ExportReportRequest = req.body;
+        const format = data.format || 'json';
 
-        // TODO: Implement proper export (PDF, CSV)
-        res.json({
-            success: true,
-            data: {
-                format: data.format,
-                message: 'Export functionality not yet implemented',
-            },
-        });
-    } catch {
+        // Fetch report data
+        const session = await sessionRepo.findById(req.params.id);
+        if (!session) {
+            res.status(404).json({
+                success: false,
+                error: { code: 'NOT_FOUND', message: 'Session not found' },
+            });
+            return;
+        }
+
+        const drivers = await sessionRepo.getDrivers(req.params.id);
+        const incidents = await incidentRepo.findAll({ sessionId: req.params.id });
+        const penalties = await penaltyRepo.findAll({ sessionId: req.params.id });
+
+        if (format === 'csv') {
+            // Generate CSV export
+            const csvLines: string[] = [];
+
+            // Incidents CSV
+            csvLines.push('=== INCIDENTS ===');
+            csvLines.push('ID,Type,Severity,Lap,Location,Drivers,Status,SessionTimeMs');
+            for (const incident of incidents) {
+                const driverNames = incident.involvedDrivers?.map(d => d.driverName).join('; ') || '';
+                csvLines.push([
+                    incident.id,
+                    incident.type,
+                    incident.severity,
+                    incident.lapNumber || 0,
+                    incident.cornerName || `${(incident.trackPosition * 100).toFixed(1)}%`,
+                    `"${driverNames}"`,
+                    incident.status,
+                    incident.sessionTimeMs
+                ].join(','));
+            }
+
+            csvLines.push('');
+            csvLines.push('=== PENALTIES ===');
+            csvLines.push('ID,Driver,Type,Value,Status,Reason');
+            for (const penalty of penalties) {
+                csvLines.push([
+                    penalty.id,
+                    penalty.driverName,
+                    penalty.type,
+                    penalty.value,
+                    penalty.status,
+                    `"${penalty.rationale?.replace(/"/g, '""') || ''}"`
+                ].join(','));
+            }
+
+            csvLines.push('');
+            csvLines.push('=== DRIVERS ===');
+            csvLines.push('ID,Name,CarNumber,CarName,iRating');
+            for (const driver of drivers) {
+                csvLines.push([
+                    driver.driverId,
+                    driver.driverName,
+                    driver.carNumber,
+                    driver.carName,
+                    driver.irating || ''
+                ].join(','));
+            }
+
+            res.setHeader('Content-Type', 'text/csv');
+            res.setHeader('Content-Disposition', `attachment; filename="report-${req.params.id}.csv"`);
+            res.send(csvLines.join('\n'));
+        } else {
+            // JSON export (default)
+            const jsonReport = {
+                session,
+                drivers,
+                incidents,
+                penalties,
+                exportedAt: new Date().toISOString(),
+                exportFormat: 'json'
+            };
+
+            res.setHeader('Content-Type', 'application/json');
+            res.setHeader('Content-Disposition', `attachment; filename="report-${req.params.id}.json"`);
+            res.json(jsonReport);
+        }
+    } catch (error) {
+        console.error('Failed to export report:', error);
         res.status(500).json({
             success: false,
             error: { code: 'INTERNAL_ERROR', message: 'Failed to export report' },

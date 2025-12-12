@@ -103,7 +103,16 @@ export const useIncidentStore = create<IncidentState>((set, get) => ({
             const updatedPenalty = { ...penalty, status: 'approved' as const };
             get().removePendingPenalty(penaltyId);
             get().addPenalty(updatedPenalty);
-            // TODO: Emit WebSocket event to server
+
+            // Emit WebSocket event to server
+            socketClient.sendStewardAction({
+                sessionId: penalty.sessionId,
+                incidentId: penalty.incidentId,
+                action: 'approve',
+                penaltyType: penalty.type,
+                penaltyValue: penalty.value,
+                notes: `Penalty ${penaltyId} approved`
+            });
         }
     },
 
@@ -115,7 +124,14 @@ export const useIncidentStore = create<IncidentState>((set, get) => ({
             const updatedPenalty = { ...penalty, status: 'rejected' as const };
             get().removePendingPenalty(penaltyId);
             get().addPenalty(updatedPenalty);
-            // TODO: Emit WebSocket event to server
+
+            // Emit WebSocket event to server
+            socketClient.sendStewardAction({
+                sessionId: penalty.sessionId,
+                incidentId: penalty.incidentId,
+                action: 'reject',
+                notes: `Penalty ${penaltyId} rejected`
+            });
         }
     },
 
