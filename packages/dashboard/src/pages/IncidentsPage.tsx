@@ -205,7 +205,7 @@ function IncidentRow({ incident, onSelect }: { incident: IncidentEvent; onSelect
 
     // Try to get corner name from track data
     const getLocationDisplay = () => {
-        // Use cornerName if already set
+        // Use cornerName if already set by relay
         if (incident.cornerName) return incident.cornerName;
 
         // Try to look up from track data
@@ -217,7 +217,7 @@ function IncidentRow({ incident, onSelect }: { incident: IncidentEvent; onSelect
         }
 
         // Fallback to percentage
-        return incident.trackPosition !== undefined
+        return incident.trackPosition !== undefined && incident.trackPosition > 0
             ? `${Math.round(incident.trackPosition * 100)}%`
             : '—';
     };
@@ -252,7 +252,7 @@ function IncidentRow({ incident, onSelect }: { incident: IncidentEvent; onSelect
             </td>
             <td className="px-4 py-3">
                 <div className="flex flex-wrap gap-1">
-                    {incident.involvedDrivers.slice(0, 3).map(driver => (
+                    {incident.involvedDrivers.slice(0, 2).map(driver => (
                         <span
                             key={driver.driverId}
                             className={`text-xs px-2 py-0.5 rounded ${driver.role === 'aggressor'
@@ -261,13 +261,14 @@ function IncidentRow({ incident, onSelect }: { incident: IncidentEvent; onSelect
                                     ? 'bg-green-500/20 text-green-300'
                                     : 'bg-slate-600/50 text-slate-300'
                                 }`}
+                            title={driver.driverName}
                         >
-                            #{driver.carNumber}
+                            #{driver.carNumber} {driver.driverName?.split(' ').pop() || ''}
                         </span>
                     ))}
-                    {incident.involvedDrivers.length > 3 && (
+                    {incident.involvedDrivers.length > 2 && (
                         <span className="text-xs text-slate-500">
-                            +{incident.involvedDrivers.length - 3}
+                            +{incident.involvedDrivers.length - 2}
                         </span>
                     )}
                 </div>

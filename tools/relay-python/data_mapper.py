@@ -108,19 +108,36 @@ def map_incident(
     """
     Map incident detection to ControlBox IncidentMessage
     """
+    # Infer incident type based on severity and context
+    incident_delta = incident_data.get('incident_delta', 1)
+    track_position = incident_data.get('track_position', 0)
+    
+    # iRacing incident points guide:
+    # 1x = off-track or light wall tap
+    # 2x = loss of control / spin  
+    # 4x = contact with another car
+    # We use delta + position to guess type
+    if incident_delta >= 4:
+        incident_type = 'contact'  # Car-to-car contact
+    elif incident_delta >= 2:
+        incident_type = 'loss_of_control'  # Spin or major off
+    else:
+        incident_type = 'off_track'  # 1x typically off-track
+    
+    # Get corner name from track percentage
+    corner_num = _estimate_corner(track_position)
+    corner_name = f"Turn {corner_num}"
+    
     return {
-        'type': 'incident',
+        'type': incident_type,
         'sessionId': session_id,
         'timestamp': int(time.time() * 1000),
         'sessionTime': incident_data.get('sessionTime', 0),
+        'lapNumber': incident_data.get('lap', 0),  # Use lapNumber for server
         'involvedCars': incident_data.get('involved_cars', []),
-        'cars': incident_data.get('cars', []),  # Keep for backward compat
-        'driverNames': incident_data.get('driver_names', []), # Keep for backward compat
-        'lap': incident_data.get('lap', 0),
-        'corner': _estimate_corner(incident_data.get('track_position', 0)),
-        'cornerName': f"Turn {_estimate_corner(incident_data.get('track_position', 0))}",
-        'trackPosition': incident_data.get('track_position', 0),
-        'severity': _estimate_severity(incident_data.get('incident_delta', 1)),
+        'trackPosition': track_position,
+        'cornerName': corner_name,
+        'severity': _estimate_severity(incident_delta),
         'disciplineContext': category
     }
 

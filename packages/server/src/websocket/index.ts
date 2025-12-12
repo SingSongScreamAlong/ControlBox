@@ -198,16 +198,17 @@ export function initializeWebSocket(httpServer: HttpServer): Server {
                 role?: 'involved' | 'aggressor' | 'victim';
             }>;
             sessionTime?: number;
+            lapNumber?: number;
+            trackPosition?: number;
+            cornerName?: string;
+            severity?: string;
             // Legacy fields fallback
             driverId?: string;
             driverName?: string;
             carNumber?: string;
-            lapNumber?: number;
-            trackPosition?: number;
-            severity?: string;
         }) => {
             const primaryDriver = data.involvedCars?.[0]?.driverName || data.driverName || data.driverId || 'Unknown';
-            console.log(`🚨 Incident received: ${data.type} - ${primaryDriver}`);
+            console.log(`🚨 Incident received: ${data.type} - ${primaryDriver} (Lap ${data.lapNumber})`);
 
             // Map drivers
             const involvedDrivers = data.involvedCars?.map(car => ({
@@ -233,6 +234,7 @@ export function initializeWebSocket(httpServer: HttpServer): Server {
                     // Convert sessionTime (secs) to ms, or fallback to now
                     sessionTimeMs: data.sessionTime ? Math.round(data.sessionTime * 1000) : Date.now(),
                     trackPosition: data.trackPosition ?? 0,
+                    cornerName: data.cornerName,
                     involvedDrivers,
                     status: 'pending'
                 }
