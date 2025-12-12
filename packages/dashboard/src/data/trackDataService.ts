@@ -57,19 +57,28 @@ export interface TrackData {
     bounds?: TrackBounds;
 }
 
-// Import all track files
+// Import all track files (both turn data and shape data)
 const trackModules = import.meta.glob('./trackData/*.json', { eager: true });
 
 // Build lookup map by trackId (normalized)
 const trackDataMap = new Map<string, TrackData>();
+const shapeDataMap = new Map<string, TrackData>(); // Separate map for iRacing ID shapes
 
 for (const [path, module] of Object.entries(trackModules)) {
     const data = module as TrackData;
-    if (data?.trackId) {
+    const filename = path.split('/').pop()?.replace('.json', '') || '';
+
+    // Check if this is a shape file (from iRacing SVG conversion)
+    if (filename.endsWith('.shape')) {
+        // Store by numeric iRacing track ID
+        const trackId = filename.replace('.shape', '');
+        shapeDataMap.set(trackId, data);
+        // Also store the full filename
+        shapeDataMap.set(filename.toLowerCase(), data);
+    } else if (data?.trackId) {
         // Store by normalized trackId (lowercase, trimmed)
         trackDataMap.set(data.trackId.toLowerCase().trim(), data);
         // Also store by filename without extension for fallback
-        const filename = path.split('/').pop()?.replace('.json', '') || '';
         trackDataMap.set(filename.toLowerCase(), data);
     }
 }
@@ -80,6 +89,24 @@ for (const [path, module] of Object.entries(trackModules)) {
 export function getTrackData(trackId: string): TrackData | undefined {
     const normalized = trackId.toLowerCase().trim();
     return trackDataMap.get(normalized);
+}
+
+/**
+ * Get track shape data by iRacing numeric track ID
+ * Falls back to track data with centerline if available
+ */
+export function getTrackShape(iRacingTrackId: string | number): TrackData | undefined {
+    const id = String(iRacingTrackId);
+
+    // First try shape map (SVG-converted files)
+    const shape = shapeDataMap.get(id);
+    if (shape) return shape;
+
+    // Fallback to track data that might have centerline
+    const trackData = getTrackData(id);
+    if (trackData?.centerline) return trackData;
+
+    return undefined;
 }
 
 /**
