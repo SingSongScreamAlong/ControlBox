@@ -26,6 +26,21 @@ export interface TrackSector {
     marker: number; // percentage where sector starts
 }
 
+// New types for track shapes
+export interface TrackPoint {
+    x: number;
+    y: number;
+    distPct: number;
+    alt?: number;
+}
+
+export interface TrackBounds {
+    xMin: number;
+    xMax: number;
+    yMin: number;
+    yMax: number;
+}
+
 export interface TrackData {
     name: string;
     trackId: string;
@@ -37,6 +52,9 @@ export interface TrackData {
     turn: TrackTurn[];
     straight?: TrackStraight[];
     sector: TrackSector[];
+    // Shape data (recorded from iRacing)
+    centerline?: TrackPoint[];
+    bounds?: TrackBounds;
 }
 
 // Import all track files

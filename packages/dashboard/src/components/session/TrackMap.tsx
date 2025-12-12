@@ -119,9 +119,6 @@ export function TrackMap({
 
     // Load track data when session changes
     useEffect(() => {
-        const points = buildTrackFromDistPct();
-        setTrackPoints(points);
-
         // Try to find track data by various name formats
         const trackName = currentSession?.trackName?.toLowerCase() || '';
         const trackConfig = currentSession?.trackConfig?.toLowerCase() || '';
@@ -134,13 +131,25 @@ export function TrackMap({
             trackName.split(' ')[0]
         ];
 
+        let foundData: TrackData | null = null;
         for (const id of possibleIds) {
             const data = getTrackData(id);
             if (data) {
+                foundData = data;
                 setTrackData(data);
                 console.log(`[TrackMap] Loaded track data for: ${data.name}`);
                 break;
             }
+        }
+
+        // Use centerline from track data if available, otherwise generate fallback
+        if (foundData?.centerline && foundData.centerline.length > 0) {
+            console.log(`[TrackMap] Using real centerline: ${foundData.centerline.length} points`);
+            setTrackPoints(foundData.centerline as TrackPoint[]);
+        } else {
+            // Fallback to generated oval
+            const points = buildTrackFromDistPct();
+            setTrackPoints(points);
         }
     }, [currentSession?.trackName, currentSession?.trackConfig]);
 

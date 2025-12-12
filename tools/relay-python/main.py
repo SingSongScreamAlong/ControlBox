@@ -27,6 +27,7 @@ from data_mapper import (
     map_race_event,
     map_incident
 )
+from track_recorder import TrackRecorder
 
 # ========================
 # Logging Setup
@@ -61,6 +62,10 @@ class RelayAgent:
         self.telemetry_count = 0
         self.incident_count = 0
         self.start_time = 0
+        
+        # Track shape recorder
+        self.track_recorder = TrackRecorder("track_shapes")
+        self.shape_recorded = False
     
     def start(self):
         """Start the relay agent"""
@@ -197,12 +202,66 @@ class RelayAgent:
         if not cars:
             return
         
+        # Record track shape if not already done
+        self._record_track_shape(cars)
+        
         telemetry = map_telemetry_snapshot(self.session_id, cars)
         self.cloud_client.send_telemetry(telemetry)
         self.telemetry_count += 1
         
         if config.LOG_TELEMETRY:
             logger.debug(f"📊 Telemetry: {len(cars)} cars")
+    
+    def _record_track_shape(self, cars):
+        """Record track shape from car telemetry if not already done"""
+        # Skip if we already have the shape
+        if self.shape_recorded:
+            return
+        
+        # Get current session info and player car
+        session = self.ir_reader.get_session_data()
+        if not session:
+            return
+        
+        track_name = session.track_name
+        track_config = session.track_config or ""
+        track_id = f"{track_name}-{track_config}".lower().replace(" ", "-")
+        
+        # Check if shape already exists
+        if self.track_recorder.has_shape(track_id):
+            if not self.shape_recorded:
+                logger.info(f"📍 Track shape already exists: {track_id}")
+                self.shape_recorded = True
+            return
+        
+        # Find player's car (usually carIdx 0 or get from driver_info)
+        player_car = next((c for c in cars if c.is_player), None)
+        if not player_car:
+            # Use first car as fallback
+            player_car = cars[0] if cars else None
+        
+        if not player_car:
+            return
+        
+        # Start recording if not already
+        if not self.track_recorder.is_recording:
+            self.track_recorder.start_recording(track_name, track_name, track_config)
+            logger.info(f"🎬 Recording track shape for: {track_name}")
+        
+        # Add current position
+        self.track_recorder.add_point(
+            lat=player_car.lat,
+            lon=player_car.lon,
+            alt=player_car.alt,
+            dist_pct=player_car.track_pct
+        )
+        
+        # Check if lap complete
+        if self.track_recorder.is_lap_complete():
+            saved_path = self.track_recorder.finish_recording()
+            if saved_path:
+                logger.info(f"✅ Track shape saved: {saved_path}")
+                self.shape_recorded = True
 
 
 # ========================
