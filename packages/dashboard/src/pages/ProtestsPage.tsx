@@ -5,6 +5,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuthStore } from '../stores/auth.store';
+import { EvidenceViewer, EvidenceUploader } from '../components/evidence';
 
 interface Protest {
     id: string;
@@ -106,8 +107,8 @@ export default function ProtestsPage() {
                             key={f}
                             onClick={() => setFilter(f)}
                             className={`px-4 py-2 rounded-lg text-sm transition-colors ${filter === f
-                                    ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                                    : 'text-slate-400 hover:text-white hover:bg-slate-700'
+                                ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
+                                : 'text-slate-400 hover:text-white hover:bg-slate-700'
                                 }`}
                         >
                             {f.replace('_', ' ').charAt(0).toUpperCase() + f.replace('_', ' ').slice(1)}
@@ -168,6 +169,8 @@ interface ProtestDetailModalProps {
 function ProtestDetailModal({ protest, onClose, onUpdate }: ProtestDetailModalProps) {
     const [resolution, setResolution] = useState(protest.resolution || '');
     const [notes, setNotes] = useState('');
+    const [showEvidence, setShowEvidence] = useState(true);
+    const [showUploader, setShowUploader] = useState(false);
 
     const handleResolve = (status: 'upheld' | 'rejected') => {
         onUpdate(protest.id, { status, resolution, stewardNotes: notes });
@@ -197,6 +200,42 @@ function ProtestDetailModal({ protest, onClose, onUpdate }: ProtestDetailModalPr
                         <div className="bg-slate-700/50 rounded-lg p-4 text-slate-200">
                             {protest.grounds}
                         </div>
+                    </div>
+
+                    {/* Evidence Section */}
+                    <div className="mb-6">
+                        <div className="flex items-center justify-between mb-3">
+                            <div className="text-sm text-slate-400">Evidence</div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setShowUploader(!showUploader)}
+                                    className="text-xs px-3 py-1 bg-primary-600 hover:bg-primary-500 text-white rounded-lg"
+                                >
+                                    {showUploader ? 'Cancel' : '+ Add Evidence'}
+                                </button>
+                                <button
+                                    onClick={() => setShowEvidence(!showEvidence)}
+                                    className="text-xs px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg"
+                                >
+                                    {showEvidence ? 'Hide' : 'Show'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {showUploader && (
+                            <div className="mb-4 p-4 bg-slate-700/50 rounded-lg">
+                                <EvidenceUploader
+                                    protestId={protest.id}
+                                    onClose={() => setShowUploader(false)}
+                                />
+                            </div>
+                        )}
+
+                        {showEvidence && (
+                            <div className="bg-slate-900/50 rounded-lg overflow-hidden">
+                                <EvidenceViewer protestId={protest.id} />
+                            </div>
+                        )}
                     </div>
 
                     {protest.status === 'submitted' || protest.status === 'under_review' ? (

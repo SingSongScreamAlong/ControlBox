@@ -28,6 +28,12 @@
    | `CORS_ORIGINS` | Plain | Your dashboard URL |
    | `OPENAI_API_KEY` | Secret | Optional (has fallback) |
    | `DISCORD_BOT_TOKEN` | Secret | Optional |
+   | `DO_SPACES_ENDPOINT` | Plain | `https://nyc3.digitaloceanspaces.com` |
+   | `DO_SPACES_REGION` | Plain | `nyc3` |
+   | `DO_SPACES_BUCKET` | Plain | Your Spaces bucket name |
+   | `DO_SPACES_KEY` | Secret | Spaces access key |
+   | `DO_SPACES_SECRET` | Secret | Spaces secret key |
+   | `EVIDENCE_MAX_SIZE_MB` | Plain | `100` (optional) |
 
 5. **Add Database**
    

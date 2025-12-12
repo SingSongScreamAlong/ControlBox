@@ -102,4 +102,6 @@ apiRouter.use('/teams', teamsRouter);
 import auditRouter from './audit.js';
 apiRouter.use('/audit', auditRouter);
 
-
+// Evidence (Video/Replay for incidents)
+import { evidenceRouter } from './evidence.js';
+apiRouter.use('/evidence', evidenceRouter);

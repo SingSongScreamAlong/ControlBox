@@ -1,0 +1,235 @@
+/* =====================================================================
+   Evidence Uploader Styles
+   ===================================================================== */
+
+.evidence-uploader {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Mode Tabs */
+.uploader-tabs {
+    display: flex;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.uploader-tab {
+    padding: 10px 16px;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.875rem;
+}
+
+.uploader-tab:hover {
+    border-color: var(--color-primary);
+    background: var(--color-surface-hover);
+}
+
+.uploader-tab--active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+/* Form */
+.uploader-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-row--inline {
+    flex-direction: row;
+    gap: 12px;
+}
+
+.form-row--inline>div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-row label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.form-input {
+    padding: 10px 12px;
+    background: var(--color-surface-dark);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text);
+    font-size: 0.875rem;
+    transition: border-color 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.form-input::placeholder {
+    color: var(--color-text-muted);
+}
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 60px;
+}
+
+/* Dropzone */
+.dropzone {
+    border: 2px dashed var(--color-border);
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.dropzone:hover {
+    border-color: var(--color-primary);
+    background: var(--color-surface-hover);
+}
+
+.dropzone--dragging {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.dropzone-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropzone-icon {
+    font-size: 3rem;
+}
+
+.dropzone p {
+    color: var(--color-text);
+    margin: 0;
+}
+
+.dropzone-divider {
+    color: var(--color-text-muted);
+    font-size: 0.75rem;
+}
+
+.file-input-label {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--color-primary);
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+.file-input-label:hover {
+    background: var(--color-primary-dark);
+}
+
+.file-input {
+    display: none;
+}
+
+.dropzone-hint {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+}
+
+/* Submit Button */
+.submit-btn {
+    padding: 12px 24px;
+    background: var(--color-primary);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.submit-btn:hover:not(:disabled) {
+    background: var(--color-primary-dark);
+}
+
+.submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Upload Progress */
+.upload-progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 16px;
+    border-top: 1px solid var(--color-border);
+}
+
+.upload-progress-item {
+    padding: 12px;
+    background: var(--color-surface-dark);
+    border-radius: 8px;
+}
+
+.upload-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.upload-filename {
+    font-weight: 500;
+    color: var(--color-text);
+}
+
+.upload-status {
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    text-transform: capitalize;
+}
+
+.progress-bar {
+    height: 6px;
+    background: var(--color-surface);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.upload-error {
+    display: block;
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--color-error);
+}

@@ -8,6 +8,7 @@ import type { IncidentEvent } from '@controlbox/common';
 import { formatIncidentType, formatSeverity, formatContactType, formatSessionTime } from '@controlbox/common';
 import { AdvisorPanel } from '../AdvisorPanel';
 import { AdvisorChip } from '../AdvisorChip';
+import { EvidenceViewer, EvidenceUploader } from '../evidence';
 
 interface IncidentDetailProps {
     incident: IncidentEvent;
@@ -19,6 +20,8 @@ interface IncidentDetailProps {
 export function IncidentDetail({ incident, onClose, onAction, onAddNote }: IncidentDetailProps) {
     const [noteInput, setNoteInput] = useState('');
     const [showAdvisor, setShowAdvisor] = useState(false);
+    const [showEvidence, setShowEvidence] = useState(true);
+    const [showUploader, setShowUploader] = useState(false);
 
     const severityColors: Record<string, string> = {
         light: 'bg-amber-500/20 text-amber-400 border-amber-500/30',
@@ -171,6 +174,48 @@ export function IncidentDetail({ incident, onClose, onAction, onAddNote }: Incid
                             )}
                         </div>
                     )}
+
+                    {/* Evidence Section */}
+                    <div className="mb-6">
+                        <div className="flex items-center justify-between mb-3">
+                            <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider">
+                                Evidence
+                            </h3>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => setShowUploader(!showUploader)}
+                                    className="text-xs px-3 py-1 bg-primary-600 hover:bg-primary-500 text-white rounded-lg transition-colors"
+                                >
+                                    {showUploader ? 'Cancel' : '+ Add Evidence'}
+                                </button>
+                                <button
+                                    onClick={() => setShowEvidence(!showEvidence)}
+                                    className="text-xs px-3 py-1 bg-slate-700 hover:bg-slate-600 text-slate-300 rounded-lg transition-colors"
+                                >
+                                    {showEvidence ? 'Hide' : 'Show'}
+                                </button>
+                            </div>
+                        </div>
+
+                        {showUploader && (
+                            <div className="mb-4 p-4 bg-slate-700/50 rounded-lg">
+                                <EvidenceUploader
+                                    incidentId={incident.id}
+                                    onClose={() => setShowUploader(false)}
+                                />
+                            </div>
+                        )}
+
+                        {showEvidence && (
+                            <div className="bg-slate-900/50 rounded-lg overflow-hidden min-h-[200px]">
+                                <EvidenceViewer
+                                    incidentId={incident.id}
+                                    incidentTimeMs={incident.sessionTimeMs}
+                                    incidentType={incident.type}
+                                />
+                            </div>
+                        )}
+                    </div>
 
                     {/* Steward Notes */}
                     <div className="mb-6">
