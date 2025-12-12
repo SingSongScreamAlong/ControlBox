@@ -45,6 +45,7 @@ def map_telemetry_snapshot(session_id: str, cars: List[CarData]) -> Dict[str, An
     Map iRacing car telemetry to ControlBox TelemetrySnapshotMessage
     """
     car_snapshots = []
+    driver_entries = []  # For timing/trackmap
     
     for car in cars:
         car_snapshots.append({
@@ -61,7 +62,7 @@ def map_telemetry_snapshot(session_id: str, cars: List[CarData]) -> Dict[str, An
             'lap': car.lap,
             'position': car.position,
             'classPosition': car.class_position,
-            # Track map coordinates (NEW)
+            # Track map coordinates
             'lat': car.lat,
             'lon': car.lon,
             'alt': car.alt,
@@ -70,12 +71,28 @@ def map_telemetry_snapshot(session_id: str, cars: List[CarData]) -> Dict[str, An
             'velocityZ': car.velocity_z,
             'yaw': car.yaw
         })
+        
+        # Driver entry for timing/track map
+        driver_entries.append({
+            'driverId': car.driver_id,
+            'driverName': car.driver_name,
+            'carNumber': car.car_number,
+            'position': car.position,
+            'lapNumber': car.lap,
+            'lapDistPct': car.track_pct,  # Required for TrackMap!
+            'speed': car.speed,
+            'lastLapTime': car.last_lap_time,
+            'bestLapTime': car.best_lap_time,
+            'gapToLeader': car.gap_to_leader if hasattr(car, 'gap_to_leader') else None,
+            'incidentCount': car.incident_count
+        })
     
     return {
         'type': 'telemetry',
         'sessionId': session_id,
         'timestamp': int(time.time() * 1000),
-        'cars': car_snapshots
+        'cars': car_snapshots,
+        'drivers': driver_entries  # Required by server for timing updates
     }
 
 

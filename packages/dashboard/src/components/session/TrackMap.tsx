@@ -175,18 +175,19 @@ export function TrackMap({
 
     const carPositions = useMemo(() => {
         return timing.map((entry, idx) => {
-            const lapProgress = ((entry as any).lapProgress ?? (entry.lapsCompleted % 1)) || (idx * 0.05);
-            const pos = getPositionOnTrack(trackPoints, lapProgress);
+            // Use lapDistPct from timing entries (sent by relay via server)
+            const lapDistPct = (entry as any).lapDistPct ?? (entry as any).lapProgress ?? 0;
+            const pos = getPositionOnTrack(trackPoints, lapDistPct);
             const screenPos = worldToScreen(pos.x, pos.y);
 
             // Check if in a turn
-            const currentTurn = trackData?.turn.find(t => lapProgress >= t.start && lapProgress <= t.end);
+            const currentTurn = trackData?.turn.find(t => lapDistPct >= t.start && lapDistPct <= t.end);
 
             return {
                 ...entry,
                 screenX: screenPos.x,
                 screenY: screenPos.y,
-                progress: lapProgress,
+                progress: lapDistPct,
                 isLeader: idx === 0,
                 inPit: (entry as any).inPit || false,
                 currentTurn: currentTurn?.name
